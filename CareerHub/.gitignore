@@ -1,0 +1,14 @@
+# Byte-compiled / cache files
+__pycache__/
+*.py[cod]
+
+# SQLite database (local dev DB)
+db.sqlite3
+
+# Virtual environment
+venv/
+
+# OS or IDE files
+.DS_Store
+.idea/
+.vscode/
