@@ -90,7 +90,9 @@ def jobseeker_onboarding(request):
         instance=getattr(request.user, "jobseeker", None)
     )
     if request.method == "POST" and form.is_valid():
-        form.save()
+        profile = form.save(commit=False)
+        profile.user = request.user
+        profile.save()
         return redirect("jobseeker_dashboard")
 
     return render(request, "accounts/jobseeker_profile_form.html", {
@@ -106,7 +108,9 @@ def recruiter_onboarding(request):
         instance=getattr(request.user, "recruiter", None)
     )
     if request.method == "POST" and form.is_valid():
-        form.save()
+        profile = form.save(commit=False)
+        profile.user = request.user
+        profile.save()
         return redirect("recruiter_dashboard")
 
     return render(request, "accounts/recruiter_profile_form.html", {
