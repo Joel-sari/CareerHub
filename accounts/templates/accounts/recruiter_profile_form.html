@@ -1,0 +1,23 @@
+{% extends "base.html" %} {% block content %}
+
+<h2>Complete Your Recruiter Profile</h2>
+
+<!-- 
+  This form lets recruiters provide company details
+  like company name and position/title.
+  - Powered by RecruiterProfileForm in accounts/forms.py
+  - Linked to recruiter_onboarding view in accounts/views.py
+-->
+
+<form method="post">
+  {% csrf_token %}
+  <!-- Django security token -->
+
+  <!-- Render all fields from RecruiterProfileForm -->
+  {{ form.as_p }}
+
+  <!-- Save button -->
+  <button type="submit">Save Profile</button>
+</form>
+
+{% endblock %}

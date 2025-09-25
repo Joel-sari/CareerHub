@@ -1,0 +1,23 @@
+{% extends "base.html" %} {% block content %}
+
+<h2>Login</h2>
+
+<!-- 
+  This template is powered by CustomLoginView in accounts/views.py.
+  - It uses Django's built-in AuthenticationForm (auto-provided).
+  - The form already includes username + password fields.
+  - If login fails (wrong credentials), Django will show errors here.
+-->
+
+<form method="post">
+  {% csrf_token %}
+  <!-- Required for security -->
+
+  <!-- Render all form fields (username + password) -->
+  {{ form.as_p }}
+
+  <!-- Submit button -->
+  <button type="submit">Login</button>
+</form>
+
+{% endblock %}
