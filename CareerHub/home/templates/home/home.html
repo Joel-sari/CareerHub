@@ -1,13 +1,62 @@
-{% extends 'base.html' %}
-{% load static %}
-
-{% block content %}
-<link rel="stylesheet" href="{% static 'home/home.css' %}">
+{% extends 'base.html' %} {% load static %} {% block content %}
+<link rel="stylesheet" href="{% static 'home/home.css' %}" />
 
 <h1>CareerHUB</h1>
 
 <div class="button-container">
-    <a href="{% url 'login' %}">Login</a>
-    <a href="{% url 'register' %}" class="create">Create a new account</a>
+  <a href="{% url 'login' %}">Login</a>
+  <a href="{% url 'register' %}" class="create">Create a new account</a>
 </div>
+======= {% extends 'base.html' %} {% block content %}
+<style>
+  body {
+    font-family: Arial, sans-serif;
+    text-align: center; /* centers the header */
+    margin-top: 100px; /* space from top */
+  }
+
+  h1 {
+    font-size: 48px;
+    margin-bottom: 50px;
+  }
+
+  .button-container {
+    display: flex;
+    justify-content: center; /* center horizontally */
+    gap: 20px; /* space between buttons */
+  }
+
+  .button-container a {
+    padding: 15px 30px;
+    text-decoration: none;
+    color: white;
+    background-color: #007bff;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.3s;
+  }
+
+  .button-container a:hover {
+    background-color: #0056b3;
+  }
+
+  /* Optional: make the second button slightly different color */
+  .button-container a.create {
+    background-color: #28a745;
+  }
+
+  .button-container a.create:hover {
+    background-color: #1e7e34;
+  }
+</style>
+
+<h1>CareerHUB</h1>
+
+<div class="button-container">
+  <a href="{% url 'login' %}">Login</a>
+  <a href="{% url 'register' %}" class="create">Create a new account</a>
+</div>
+
+<h1>Welcome to the Home Page</h1>
+
 {% endblock %}
