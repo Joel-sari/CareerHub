@@ -29,6 +29,17 @@ urlpatterns = [
 
 
     # ---------------------------------------------------
+    # PLACEHOLDER ROUTES (for future features)
+    # ---------------------------------------------------
+    # Recruiter features
+    path("recruiter/post-job/", views.post_job_placeholder, name="post_job"),  # TODO: implement view
+    path("recruiter/view-candidates/", views.view_candidates_placeholder, name="view_candidates"),  # TODO: implement view
+
+    # Job Seeker features
+    path("jobseeker/search-jobs/", views.search_jobs_placeholder, name="search_jobs"),  # TODO: implement view
+
+
+    # ---------------------------------------------------
     # ONBOARDING ROUTES
     # ---------------------------------------------------
     # After signup, Job Seekers complete their profile

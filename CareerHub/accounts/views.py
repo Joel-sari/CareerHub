@@ -1,4 +1,14 @@
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import LoginView
+from django.shortcuts import redirect
+
+@login_required
+def jobseeker_dashboard(request):
+    return render(request, "accounts/jobseeker_dashboard.html")
+
+from django.shortcuts import render, redirect
+from django.http import HttpResponse
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
@@ -98,73 +108,16 @@ def recruiter_onboarding(request):
 
 
 # -------------------------------------------------------
-# Recruiter → Candidate Features
+# Placeholder Views for Future Features
 # -------------------------------------------------------
-
-# Candidate List (Recruiter only)
 @login_required
-def candidate_list(request):
-    if request.user.role != User.RECRUITER:
-        return HttpResponseForbidden("Only recruiters can view candidates.")
-    
-    candidates = JobSeekerProfile.objects.filter(is_public=True)
-    return render(request, "accounts/candidate_list.html", {"candidates": candidates})
-
-
-# Candidate Profile (Recruiter only)
-@login_required
-def candidate_profile(request, user_id):
-    if request.user.role != User.RECRUITER:
-        return HttpResponseForbidden("Only recruiters can view candidate profiles.")
-    
-    candidate = get_object_or_404(User, id=user_id, role=User.JOB_SEEKER)
-    return render(request, "accounts/candidate_profile.html", {"candidate": candidate})
-
-
-# Email Candidate (Recruiter only)
-class EmailCandidateForm(forms.Form):
-    subject = forms.CharField(max_length=255)
-    message = forms.CharField(widget=forms.Textarea)
-
+def post_job_placeholder(request):
+    return HttpResponse("Placeholder: Post Job page coming soon.")
 
 @login_required
-def email_candidate(request, user_id):
-    if request.user.role != User.RECRUITER:
-        return HttpResponseForbidden("Only recruiters can email candidates.")
-    
-    candidate = get_object_or_404(User, id=user_id, role=User.JOB_SEEKER)
+def view_candidates_placeholder(request):
+    return HttpResponse("Placeholder: View Candidates page coming soon.")
 
-    if request.method == "POST":
-        form = EmailCandidateForm(request.POST)
-        if form.is_valid():
-            subject = form.cleaned_data["subject"]
-            message = form.cleaned_data["message"]
-
-            recruiter = request.user  # logged-in recruiter
-
-            # Add recruiter info into the email body
-            full_message = f"""
-            Message from Recruiter: {recruiter.username} ({recruiter.email})
-
-            {message}
-            """
-
-            # Build and send email
-            email = EmailMessage(
-                subject=subject,
-                body=full_message,
-                from_email=settings.DEFAULT_FROM_EMAIL,  # platform email
-                to=[candidate.email],                    # candidate's email
-                reply_to=[recruiter.email],              # reply goes to recruiter
-            )
-
-            email.send(fail_silently=False)
-
-            return render(request, "accounts/email_sent.html", {"candidate": candidate})
-    else:
-        form = EmailCandidateForm()
-
-    return render(request, "accounts/email_candidate.html", {
-        "form": form,
-        "candidate": candidate,
-    })
+@login_required
+def search_jobs_placeholder(request):
+    return HttpResponse("Placeholder: Job Search page coming soon.")

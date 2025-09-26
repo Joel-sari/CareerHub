@@ -1,68 +1,16 @@
-{% extends "base.html" %} 
-{% block content %}
+{% extends "base.html" %} {% block content %}
 
-<style>
-    /* Title styling */
-    h2 {
-        margin-top: 40px;
-        font-size: 49px; /* ~1.75x bigger */
-        font-weight: bold;
-        color: navy; /* Navy blue title */
-        text-align: center;
-    }
-
-    /* Welcome message */
-    .welcome {
-        margin-top: 30px;
-        font-size: 22px;
-        font-weight: 900;  /* Extra bold */
-        color: navy; /* Navy blue text */
-        text-align: center;
-    }
-
-    /* Navigation styles */
-    nav ul {
-        list-style-type: none;
-        padding: 0;
-        margin-top: 180px; /* Lower the buttons */
-        text-align: center;
-    }
-
-    nav ul li {
-        display: inline-block;
-        margin: 15px;
-    }
-
-    /* Button styles */
-    nav ul li a.btn {
-        display: inline-block;
-        padding: 15px 30px;
-        font-size: 18px;
-        font-weight: bold;
-        text-decoration: none;
-        background-color: #FFD700; /* Georgia Tech yellow */
-        color: navy; /* Font color navy */
-        border: 2px solid navy; /* Border navy */
-        border-radius: 5px;
-        transition: all 0.3s ease;
-    }
-
-    nav ul li a.btn:hover {
-        background-color: navy;
-        color: #FFD700; /* Yellow text when hovered */
-        border: 2px solid #FFD700; /* Yellow border on hover */
-    }
-</style>
+<!-- 
+  This page is shown AFTER a recruiter logs in.
+  - Controlled by recruiter_dashboard view in accounts/views.py
+  - Later we can expand this to show:
+      • Post new jobs
+      • Manage/edit posted jobs
+      • View applicants
+-->
 
 <h2>Recruiter Dashboard</h2>
-
-<p class="welcome">Welcome, {{ user.username }}! You are logged in as a Recruiter.</p>
-
-<nav>
-  <ul>
-    <li><a href="{% url 'recruiter_onboarding' %}" class="btn">Edit Profile</a></li>
-    <li><a href="{% url 'candidate_list' %}" class="btn">View Candidates</a></li>
-  </ul>
-</nav>
+<p>Welcome, {{ user.username }}! 🎉</p>
+<p>Here you’ll see your latest notifications, messages, and job updates.</p>
 
 {% endblock %}
