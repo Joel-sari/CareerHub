@@ -8,6 +8,7 @@ def jobseeker_dashboard(request):
     return render(request, "accounts/jobseeker_dashboard.html")
 
 from django.shortcuts import render, redirect
+from django.http import HttpResponse
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
@@ -117,3 +118,19 @@ def recruiter_onboarding(request):
         "form": form,
         "title": "Complete your Recruiter profile"
     })
+
+
+# -------------------------------------------------------
+# Placeholder Views for Future Features
+# -------------------------------------------------------
+@login_required
+def post_job_placeholder(request):
+    return HttpResponse("Placeholder: Post Job page coming soon.")
+
+@login_required
+def view_candidates_placeholder(request):
+    return HttpResponse("Placeholder: View Candidates page coming soon.")
+
+@login_required
+def search_jobs_placeholder(request):
+    return HttpResponse("Placeholder: Job Search page coming soon.")

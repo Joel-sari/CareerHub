@@ -1,7 +1,5 @@
 {% extends "base.html" %} {% block content %}
 
-<h2>Recruiter Dashboard</h2>
-
 <!-- 
   This page is shown AFTER a recruiter logs in.
   - Controlled by recruiter_dashboard view in accounts/views.py
@@ -11,13 +9,8 @@
       • View applicants
 -->
 
-<p>Welcome, {{ user.username }}! You are logged in as a Recruiter.</p>
-
-<nav>
-  <ul>
-    <li><a href="{% url 'recruiter_onboarding' %}">Edit Profile</a></li>
-    <!-- Add more links here as features grow -->
-  </ul>
-</nav>
+<h2>Recruiter Dashboard</h2>
+<p>Welcome, {{ user.username }}! 🎉</p>
+<p>Here you’ll see your latest notifications, messages, and job updates.</p>
 
 {% endblock %}
