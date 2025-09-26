@@ -36,4 +36,11 @@ urlpatterns = [
 
     # After signup, Recruiters complete their profile
     path("onboarding/recruiter/", views.recruiter_onboarding, name="recruiter_onboarding"),
+
+
+    # Candidate browsing & emailing
+    path("candidates/", views.candidate_list, name="candidate_list"),
+    path("candidates/<int:user_id>/", views.candidate_profile, name="candidate_profile"),
+    path("candidates/<int:user_id>/email/", views.email_candidate, name="email_candidate"),
+
 ]

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Candidate Directory</h2>
+
+<ul>
+  {% for candidate in candidates %}
+    <li>
+      <a href="{% url 'candidate_profile' candidate.user.id %}">
+        {{ candidate.user.username }} — {{ candidate.headline|default:"No headline yet" }}
+      </a>
+    </li>
+  {% empty %}
+    <p>No public candidates available at the moment.</p>
+  {% endfor %}
+</ul>
+{% endblock %}

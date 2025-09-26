@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>{{ candidate.username }}'s Profile</h2>
+
+<p><strong>Email:</strong> {{ candidate.email }}</p>
+<p><strong>Headline:</strong> {{ candidate.jobseeker.headline }}</p>
+<p><strong>Skills:</strong> {{ candidate.jobseeker.skills }}</p>
+<p><strong>Education:</strong> {{ candidate.jobseeker.education }}</p>
+<p><strong>Work Experience:</strong> {{ candidate.jobseeker.work_experience }}</p>
+
+<a href="{% url 'email_candidate' candidate.id %}" class="btn">Email Candidate</a>
+{% endblock %}
