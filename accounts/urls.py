@@ -15,7 +15,7 @@ urlpatterns = [
     path("login/", views.CustomLoginView.as_view(), name="login"),
 
     # User logout (redirects back to home page)
-    path("logout/", LogoutView.as_view(next_page="home"), name="logout"),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
 
 
     # ---------------------------------------------------

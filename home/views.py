@@ -1,8 +1,8 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
-
-from .models import Job
+from accounts.models import User
+from .models import Job, Application
 from .forms import JobForm
 from .decorators import recruiter_required
 
@@ -40,3 +40,23 @@ def jobs_detail(request, pk):
 
 def home(request):
     return render(request, 'home/home.html')
+
+@login_required
+def apply_to_job(request, pk):
+    job = get_object_or_404(Job, pk=pk)
+    if request.user.role != User.JOB_SEEKER:
+        return redirect('home')
+    if request.method == 'POST':
+        note = request.POST.get('note', '')
+        Application.objects.create(job=job, applicant=request.user, note=note)
+        return redirect('jobseeker_dashboard')
+    return render(request, 'jobs/apply_form.html', {'job': job})
+
+def job_list(request):
+    # Show all active jobs to everyone (or just job seekers)
+    jobs = Job.objects.filter(is_active=True)
+    return render(request, 'jobs/job_list.html', {'jobs': jobs})
+
+def job_detail(request, pk):
+    job = get_object_or_404(Job, pk=pk)
+    return render(request, 'jobs/job_detail.html', {'job': job})

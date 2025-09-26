@@ -1,20 +1,10 @@
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import LoginView
-from django.shortcuts import redirect
-
-@login_required
-def jobseeker_dashboard(request):
-    return render(request, "accounts/jobseeker_dashboard.html")
-
-from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
+from django.shortcuts import render, redirect
 from .forms import SignUpForm, JobSeekerProfileForm, RecruiterProfileForm
 from .models import User
-
-
+from home.models import Job
 # -------------------------------------------------------
 # Sign Up View. This holds our "API"
 # -------------------------------------------------------
@@ -69,7 +59,14 @@ class CustomLoginView(LoginView):
 # -------------------------------------------------------
 @login_required
 def jobseeker_dashboard(request):
-    return render(request, "accounts/jobseeker_dashboard.html")
+    if request.user.role != User.JOB_SEEKER:
+        return redirect('home')
+    jobs = Job.objects.filter(is_active=True).order_by('-created_at')
+    return render(
+        request,
+        'accounts/jobseeker_dashboard.html',
+        {'jobs': jobs}
+    )
 
 @login_required
 def recruiter_dashboard(request):
