@@ -54,8 +54,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'CareerHub.CareerHub.urls'
-WSGI_APPLICATION = 'CareerHub.CareerHub.wsgi.application'
+ROOT_URLCONF = 'CareerHub.urls'
+WSGI_APPLICATION = 'CareerHub.wsgi.application'
 
 
 TEMPLATES = [
