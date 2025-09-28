@@ -15,6 +15,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Static files (global static folder at project root)
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = "/home/Joelsari/CareerHub/staticfiles"
 
 AUTH_USER_MODEL = "accounts.User"
 
@@ -24,7 +25,10 @@ SECRET_KEY = 'django-insecure-54_914(cnuq$$!6=+xewf4mk8mlm!_pa(xe7y23+&8-tlk(ab!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["careerhub-joelsari.pythonanywhere.com"]
+CSRF_TRUSTED_ORIGINS = [
+    "https://careerhub-joelsari.pythonanywhere.com",
+]
 
 
 # Application definition
