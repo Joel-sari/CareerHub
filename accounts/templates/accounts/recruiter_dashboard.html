@@ -1,0 +1,25 @@
+{% extends "base.html" %} {% block content %}
+
+<h2>Recruiter Dashboard</h2>
+
+<!-- 
+  This page is shown AFTER a recruiter logs in.
+  - Controlled by recruiter_dashboard view in accounts/views.py
+  - Later we can expand this to show:
+      • Post new jobs
+      • Manage/edit posted jobs
+      • View applicants
+-->
+
+<p>Welcome, {{ user.username }}! You are logged in as a Recruiter.</p>
+
+<nav>
+  <ul>
+    <li><a href="{% url 'jobs_create' %}">➕ Post a Job</a></li>
+    <li><a href="{% url 'jobs_my_list' %}">📋 My Job Posts</a></li>
+    <li><a href="{% url 'recruiter_onboarding' %}">✏️ Edit Profile</a></li>
+    <!-- Add more links here as features grow -->
+  </ul>
+</nav>
+
+{% endblock %}
