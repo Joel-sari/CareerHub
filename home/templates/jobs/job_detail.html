@@ -17,9 +17,21 @@
     <p>{{ job.requirements|linebreaks }}</p>
   {% endif %}
 
-  {% if user.is_authenticated and user.role == "recruiter" %}
+  {% if user.is_authenticated and user.is_recruiter %}
     <p>
       <a href="{% url 'jobs_my_list' %}" class="btn btn-secondary">← Back to Dashboard</a>
     </p>
+  {% endif %}
+
+  {% if user.is_authenticated and user.is_job_seeker %}
+    <hr>
+    <h3>Apply for this Job</h3>
+    <form method="post" action="{% url 'jobs:apply_job' job.pk %}">
+      {% csrf_token %}
+      <textarea name="note" rows="3" placeholder="Add a short note (optional)"></textarea><br>
+      <button type="submit" class="btn btn-primary mt-2">Apply Now</button>
+    </form>
+  {% elif not user.is_authenticated %}
+    <p><a href="{% url 'login' %}">Log in</a> to apply for this job.</p>
   {% endif %}
 {% endblock %}

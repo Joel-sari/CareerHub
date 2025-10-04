@@ -1,23 +1,32 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %}
+{% block content %}
 
 <h2>Job Seeker Dashboard</h2>
-
-<!-- 
-  This page is shown AFTER a job seeker logs in.
-  - Controlled by jobseeker_dashboard view in accounts/views.py
-  - Later we can expand this to show:
-      • Available jobs
-      • Applied jobs
-      • Edit profile button
--->
-
 <p>Welcome, {{ user.username }}! You are logged in as a Job Seeker.</p>
 
 <nav>
   <ul>
     <li><a href="{% url 'jobseeker_onboarding' %}">Edit Profile</a></li>
-    <!-- Add more links here as features grow -->
   </ul>
 </nav>
+
+<hr>
+
+<h3>Available Jobs</h3>
+
+{% if jobs %}
+  <ul>
+    {% for job in jobs %}
+      <li>
+        <strong>{{ job.title }}</strong> at {{ job.company|default:"—" }} <br>
+        {{ job.location|default:"Remote" }}<br>
+        <a href="{% url 'jobs:job_detail' job.pk %}">View Details</a> |
+        <a href="{% url 'jobs:apply_job' job.pk %}">Apply</a>
+      </li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>No current job postings.</p>
+{% endif %}
 
 {% endblock %}
