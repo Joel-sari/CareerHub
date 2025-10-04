@@ -1,0 +1,27 @@
+{% extends "base.html" %} {% block content %}
+
+<h2>Create an Account</h2>
+
+<!-- 
+  This form uses our SignUpForm from accounts/forms.py.
+  It already includes:
+    - Username
+    - Email
+    - Role (Job Seeker / Recruiter dropdown)
+    - Password1
+    - Password2 (confirmation)
+  Django will automatically handle validation and errors.
+-->
+
+<form method="post">
+  {% csrf_token %}
+  <!-- Django security token required for all POST forms -->
+
+  <!-- Render all form fields with labels and inputs -->
+  {{ form.as_p }}
+
+  <!-- Submit button -->
+  <button type="submit">Sign Up</button>
+</form>
+
+{% endblock %}

@@ -1,0 +1,39 @@
+from django.urls import path
+from django.contrib.auth import views as auth_views
+from . import views
+from django.contrib.auth.views import LogoutView
+
+
+urlpatterns = [
+    # ---------------------------------------------------
+    # AUTH ROUTES
+    # ---------------------------------------------------
+    # User registration (sign up with role selection)
+    path("signup/", views.signup_view, name="signup"),
+
+    # User login (redirects to role-specific dashboard)
+    path("login/", views.CustomLoginView.as_view(), name="login"),
+
+    # User logout (redirects back to home page)
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+
+
+    # ---------------------------------------------------
+    # DASHBOARDS
+    # ---------------------------------------------------
+    # Job Seeker dashboard → shown after login/onboarding
+    path("dashboard/jobseeker/", views.jobseeker_dashboard, name="jobseeker_dashboard"),
+
+    # Recruiter dashboard → shown after login/onboarding
+    path("dashboard/recruiter/", views.recruiter_dashboard, name="recruiter_dashboard"),
+
+
+    # ---------------------------------------------------
+    # ONBOARDING ROUTES
+    # ---------------------------------------------------
+    # After signup, Job Seekers complete their profile
+    path("onboarding/jobseeker/", views.jobseeker_onboarding, name="jobseeker_onboarding"),
+
+    # After signup, Recruiters complete their profile
+    path("onboarding/recruiter/", views.recruiter_onboarding, name="recruiter_onboarding"),
+]
