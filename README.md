@@ -25,9 +25,9 @@ CareerHub is a Django-powered career platform designed to connect job seekers an
 │── CareerHub/        # Core settings, URLs, WSGI/ASGI config
 
 👥 Team
-	•	Joel Sari (Project Manager/ Lead Develeoper)
+	•	Joel Sari (Project Manager/ Lead Developer)
 	•	Amrin
 	•	Esther
 	•	Srimayi
-	•	Jaquelyn
+	•	Jacquelyn
   
