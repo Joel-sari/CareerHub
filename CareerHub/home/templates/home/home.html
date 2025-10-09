@@ -1,0 +1,25 @@
+{% extends "base.html" %} {% block content %}
+<h1>Welcome to CareerHub</h1>
+
+{% if not user.is_authenticated %}
+<!-- If not logged in, show signup/login -->
+<nav>
+  <a href="{% url 'signup' %}">Sign Up</a>
+  <a href="{% url 'login' %}">Login</a>
+</nav>
+{% else %}
+<!-- Logged in -->
+<p>Hello, {{ user.username }} ({{ user.role }})</p>
+
+{% if user.role == "job_seeker" %}
+<a href="{% url 'jobseeker_dashboard' %}">Go to Job Seeker Dashboard</a>
+{% else %}
+<a href="{% url 'recruiter_dashboard' %}">Go to Recruiter Dashboard</a>
+{% endif %}
+
+<!-- Logout is available for ALL logged-in users -->
+<form method="post" action="{% url 'logout' %}" style="display: inline">
+  {% csrf_token %}
+  <button type="submit">Logout</button>
+</form>
+{% endif %} {% endblock %}

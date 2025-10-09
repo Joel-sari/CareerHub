@@ -1,0 +1,16 @@
+{% extends "base.html" %} {% block content %}
+
+<!-- 
+  This page is shown AFTER a recruiter logs in.
+  - Controlled by recruiter_dashboard view in accounts/views.py
+  - Later we can expand this to show:
+      • Post new jobs
+      • Manage/edit posted jobs
+      • View applicants
+-->
+
+<h2>Recruiter Dashboard</h2>
+<p>Welcome, {{ user.username }}! 🎉</p>
+<p>Here you’ll see your latest notifications, messages, and job updates.</p>
+
+{% endblock %}

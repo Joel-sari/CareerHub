@@ -12,15 +12,9 @@ load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-STATIC_URL = '/static/'
-
-# This line tells Django where your main static files are (your CSS/JS/images)
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
-
-# This is where Django collects them for deployment (DON’T create this manually)
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+# Static files (global static folder at project root)
+STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 
 AUTH_USER_MODEL = "accounts.User"
 
@@ -30,7 +24,7 @@ SECRET_KEY = 'django-insecure-54_914(cnuq$$!6=+xewf4mk8mlm!_pa(xe7y23+&8-tlk(ab!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'joelsari.pythonanywhere.com']
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -44,7 +38,6 @@ INSTALLED_APPS = [
     'home',
     'accounts',
     "widget_tweaks",
-    "jobs",
 ]
 
 MIDDLEWARE = [
@@ -120,5 +113,3 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-
-LOGOUT_REDIRECT_URL = '/'

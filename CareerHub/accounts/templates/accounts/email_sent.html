@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Email Sent</h2>
+<p>Your email has been successfully sent to {{ candidate.username }} ({{ candidate.email }}).</p>
+
+<a href="{% url 'candidate_profile' candidate.id %}">Back to Profile</a>
+{% endblock %}
