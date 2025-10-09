@@ -28,7 +28,7 @@ AUTH_USER_MODEL = "accounts.User"
 SECRET_KEY = 'django-insecure-54_914(cnuq$$!6=+xewf4mk8mlm!_pa(xe7y23+&8-tlk(ab!'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', 'joelsari.pythonanywhere.com']
 
@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'home',
     'accounts',
     "widget_tweaks",
+    "jobs",
 ]
 
 MIDDLEWARE = [

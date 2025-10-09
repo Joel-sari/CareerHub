@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('home', '0001_initial'),
+        ('jobs', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('status', models.CharField(choices=[('Applied', 'Applied'), ('Review', 'Under Review'), ('Interview', 'Interview'), ('Hired', 'Hired'), ('Closed', 'Closed')], default='Applied', max_length=20)),
                 ('applied_at', models.DateTimeField(auto_now_add=True)),
                 ('applicant', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='applications', to=settings.AUTH_USER_MODEL)),
-                ('job', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='applications', to='home.job')),
+                ('job', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='applications', to='jobs.job')),
             ],
             options={
                 'ordering': ['-applied_at'],

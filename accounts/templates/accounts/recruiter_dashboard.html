@@ -15,9 +15,9 @@
 
 <nav>
   <ul>
-    <li><a href="{% url 'jobs_create' %}">➕ Post a Job</a></li>
-    <li><a href="{% url 'jobs_my_list' %}">📋 My Job Posts</a></li>
-    <li><a href="{% url 'recruiter_onboarding' %}">✏️ Edit Profile</a></li>
+    <li><a href="{% url 'jobs:create' %}">➕ Post a Job</a></li>
+    <li><a href="{% url 'jobs:my_list' %}">📋 My Job Posts</a></li>
+    <a href="{% url 'accounts:recruiter_onboarding' %}">✏️ Edit Profile</a>
     <!-- Add more links here as features grow -->
   </ul>
 </nav>

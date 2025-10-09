@@ -2,9 +2,12 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from .forms import SignUpForm, JobSeekerProfileForm, RecruiterProfileForm
 from .models import User
-from home.models import Job
+from CareerHub.models import Job
+from jobs.models import Job
+
 # -------------------------------------------------------
 # Sign Up View. This holds our "API"
 # -------------------------------------------------------
@@ -17,17 +20,14 @@ def signup_view(request):
     if request.method == "POST":
         form = SignUpForm(request.POST)
         if form.is_valid():
-            # Save user to DB (creates User + linked profile via signals)
             user = form.save()
-
-            # Log the user in so they don’t need to login again right after signup (built in function)
             login(request, user)
 
-            # Redirect user based on role to fill in more profile info
-            if user.role == User.JOB_SEEKER:
-                return redirect("jobseeker_onboarding")
+            # ✅ namespaced redirects
+            if user.role == User.JOB_SEEKER or user.role == "job_seeker":
+                return redirect("accounts:jobseeker_onboarding")
             else:
-                return redirect("recruiter_onboarding")
+                return redirect("accounts:recruiter_onboarding")
     else:
         form = SignUpForm()
 
@@ -37,36 +37,27 @@ def signup_view(request):
 # -------------------------------------------------------
 # Custom Login View
 # -------------------------------------------------------
-# Overrides Django’s built-in LoginView.
-# After login, user is redirected based on their role.
-# -------------------------------------------------------
 class CustomLoginView(LoginView):
     template_name = "accounts/login.html"
 
     def get_success_url(self):
         user = self.request.user
-        if user.role == User.JOB_SEEKER:
-            return "/accounts/dashboard/jobseeker/"
+        if user.role == User.JOB_SEEKER or user.role == "job_seeker":
+            # ✅ use reverse for clarity + namespace
+            return reverse("accounts:jobseeker_dashboard")
         else:
-            return "/accounts/dashboard/recruiter/"
+            return reverse("accounts:recruiter_dashboard")
 
 
 # -------------------------------------------------------
-# Dashboards (Job Seeker / Recruiter)
-# -------------------------------------------------------
-# Each role sees its own dashboard.
-# (Later you can expand these to show jobs, applications, etc.)
+# Dashboards
 # -------------------------------------------------------
 @login_required
 def jobseeker_dashboard(request):
-    if request.user.role != User.JOB_SEEKER:
-        return redirect('home')
+    if request.user.role != User.JOB_SEEKER and request.user.role != "job_seeker":
+        return redirect('home:home')  # ✅ namespaced home
     jobs = Job.objects.filter(is_active=True).order_by('-created_at')
-    return render(
-        request,
-        'accounts/jobseeker_dashboard.html',
-        {'jobs': jobs}
-    )
+    return render(request, 'accounts/jobseeker_dashboard.html', {'jobs': jobs})
 
 @login_required
 def recruiter_dashboard(request):
@@ -76,12 +67,8 @@ def recruiter_dashboard(request):
 # -------------------------------------------------------
 # Onboarding Views
 # -------------------------------------------------------
-# After signup, users fill out more details.
-# These forms update the profiles created by signals in models.py.
-# -------------------------------------------------------
 @login_required
 def jobseeker_onboarding(request):
-    # Attach to current user’s profile
     form = JobSeekerProfileForm(
         request.POST or None,
         instance=getattr(request.user, "jobseeker", None)
@@ -90,13 +77,11 @@ def jobseeker_onboarding(request):
         profile = form.save(commit=False)
         profile.user = request.user
         profile.save()
-        return redirect("jobseeker_dashboard")
-
+        return redirect("accounts:jobseeker_dashboard")  # ✅ namespaced
     return render(request, "accounts/jobseeker_profile_form.html", {
         "form": form,
         "title": "Complete your Job Seeker profile"
     })
-
 
 @login_required
 def recruiter_onboarding(request):
@@ -108,8 +93,7 @@ def recruiter_onboarding(request):
         profile = form.save(commit=False)
         profile.user = request.user
         profile.save()
-        return redirect("recruiter_dashboard")
-
+        return redirect("accounts:recruiter_dashboard")  # ✅ namespaced
     return render(request, "accounts/recruiter_profile_form.html", {
         "form": form,
         "title": "Complete your Recruiter profile"

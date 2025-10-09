@@ -19,7 +19,7 @@
 
   {% if user.is_authenticated and user.is_recruiter %}
     <p>
-      <a href="{% url 'jobs_my_list' %}" class="btn btn-secondary">← Back to Dashboard</a>
+      <a href="{% url 'jobs:my_list' %}" class="btn btn-secondary">← Back to Dashboard</a>
     </p>
   {% endif %}
 
