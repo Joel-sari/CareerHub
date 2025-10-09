@@ -17,3 +17,6 @@ db.sqlite3
 # OS files
 .DS_Store
 Thumbs.db
+
+#No pycharm files come thru 
+.idea
