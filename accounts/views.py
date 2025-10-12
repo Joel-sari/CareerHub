@@ -1,20 +1,19 @@
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.views import LoginView
-from django.shortcuts import render, redirect
-from django.urls import reverse
+from django.http import HttpResponseForbidden
+from django.core.mail import EmailMessage
+from django.conf import settings
+from django import forms
+
 from .forms import SignUpForm, JobSeekerProfileForm, RecruiterProfileForm
-from .models import User
-from CareerHub.models import Job
-from jobs.models import Job
+from .models import User, JobSeekerProfile
+
 
 # -------------------------------------------------------
-# Sign Up View. This holds our "API"
-# -------------------------------------------------------
-# Handles user registration.
-# - Uses SignUpForm (username, email, password, role).
-# - After successful signup, logs the user in immediately.
-# - Redirects to the correct onboarding page depending on role.
+# Sign Up View
 # -------------------------------------------------------
 def signup_view(request):
     if request.method == "POST":
@@ -23,11 +22,10 @@ def signup_view(request):
             user = form.save()
             login(request, user)
 
-            # ✅ namespaced redirects
-            if user.role == User.JOB_SEEKER or user.role == "job_seeker":
-                return redirect("accounts:jobseeker_onboarding")
+            if user.role == User.JOB_SEEKER:
+                return redirect("jobseeker_onboarding")
             else:
-                return redirect("accounts:recruiter_onboarding")
+                return redirect("recruiter_onboarding")
     else:
         form = SignUpForm()
 
@@ -42,11 +40,10 @@ class CustomLoginView(LoginView):
 
     def get_success_url(self):
         user = self.request.user
-        if user.role == User.JOB_SEEKER or user.role == "job_seeker":
-            # ✅ use reverse for clarity + namespace
-            return reverse("accounts:jobseeker_dashboard")
+        if user.role == User.JOB_SEEKER:
+            return "/accounts/dashboard/jobseeker/"
         else:
-            return reverse("accounts:recruiter_dashboard")
+            return "/accounts/dashboard/recruiter/"
 
 
 # -------------------------------------------------------
@@ -54,10 +51,8 @@ class CustomLoginView(LoginView):
 # -------------------------------------------------------
 @login_required
 def jobseeker_dashboard(request):
-    if request.user.role != User.JOB_SEEKER and request.user.role != "job_seeker":
-        return redirect('home:home')  # ✅ namespaced home
-    jobs = Job.objects.filter(is_active=True).order_by('-created_at')
-    return render(request, 'accounts/jobseeker_dashboard.html', {'jobs': jobs})
+    return render(request, "accounts/jobseeker_dashboard.html")
+
 
 @login_required
 def recruiter_dashboard(request):
@@ -77,11 +72,13 @@ def jobseeker_onboarding(request):
         profile = form.save(commit=False)
         profile.user = request.user
         profile.save()
-        return redirect("accounts:jobseeker_dashboard")  # ✅ namespaced
+        return redirect("jobseeker_dashboard")
+
     return render(request, "accounts/jobseeker_profile_form.html", {
         "form": form,
         "title": "Complete your Job Seeker profile"
     })
+
 
 @login_required
 def recruiter_onboarding(request):
@@ -93,8 +90,100 @@ def recruiter_onboarding(request):
         profile = form.save(commit=False)
         profile.user = request.user
         profile.save()
-        return redirect("accounts:recruiter_dashboard")  # ✅ namespaced
+        return redirect("recruiter_dashboard")
+
     return render(request, "accounts/recruiter_profile_form.html", {
         "form": form,
         "title": "Complete your Recruiter profile"
+    })
+
+
+# -------------------------------------------------------
+# Placeholder Views for Future Features
+# -------------------------------------------------------
+@login_required
+def post_job_placeholder(request):
+    return HttpResponse("Placeholder: Post Job page coming soon.")
+
+@login_required
+def view_candidates_placeholder(request):
+    return HttpResponse("Placeholder: View Candidates page coming soon.")
+
+@login_required
+def search_jobs_placeholder(request):
+    return HttpResponse("Placeholder: Job Search page coming soon.")
+
+
+
+
+# -------------------------------------------------------
+# Recruiter → Candidate Features
+# -------------------------------------------------------
+
+# Candidate List (Recruiter only)
+@login_required
+def candidate_list(request):
+    if request.user.role != User.RECRUITER:
+        return HttpResponseForbidden("Only recruiters can view candidates.")
+    
+    candidates = JobSeekerProfile.objects.filter(is_public=True)
+    return render(request, "accounts/candidate_list.html", {"candidates": candidates})
+
+
+# Candidate Profile (Recruiter only)
+@login_required
+def candidate_profile(request, user_id):
+    if request.user.role != User.RECRUITER:
+        return HttpResponseForbidden("Only recruiters can view candidate profiles.")
+    
+    candidate = get_object_or_404(User, id=user_id, role=User.JOB_SEEKER)
+    return render(request, "accounts/candidate_profile.html", {"candidate": candidate})
+
+
+# Email Candidate (Recruiter only)
+class EmailCandidateForm(forms.Form):
+    subject = forms.CharField(max_length=255)
+    message = forms.CharField(widget=forms.Textarea)
+
+
+@login_required
+def email_candidate(request, user_id):
+    if request.user.role != User.RECRUITER:
+        return HttpResponseForbidden("Only recruiters can email candidates.")
+    
+    candidate = get_object_or_404(User, id=user_id, role=User.JOB_SEEKER)
+
+    if request.method == "POST":
+        form = EmailCandidateForm(request.POST)
+        if form.is_valid():
+            subject = form.cleaned_data["subject"]
+            message = form.cleaned_data["message"]
+
+            recruiter = request.user  # logged-in recruiter
+
+            # Add recruiter info into the email body
+            full_message = f"""
+            Message from Recruiter: {recruiter.username} ({recruiter.email})
+
+            {message}
+            """
+
+            # Build and send email
+            email = EmailMessage(
+                subject=subject,
+                body=full_message,
+                from_email=settings.DEFAULT_FROM_EMAIL,  # platform email
+                to=[candidate.email],                    # candidate's email
+                reply_to=[recruiter.email],              # reply goes to recruiter
+            )
+
+            email.send(fail_silently=False)
+
+            return render(request, "accounts/email_sent.html", {"candidate": candidate})
+    else:
+        form = EmailCandidateForm()
+
+    return render(request, "accounts/email_candidate.html", {
+        "form": form,
+        "candidate": candidate,
     })

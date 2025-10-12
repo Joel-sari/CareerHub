@@ -1,32 +1,7 @@
-{% extends "base.html" %}
-{% block content %}
+{% extends "base.html" %} {% block content %}
 
 <h2>Job Seeker Dashboard</h2>
-<p>Welcome, {{ user.username }}! You are logged in as a Job Seeker.</p>
-
-<nav>
-  <ul>
-    <li><a href="{% url 'accounts:jobseeker_onboarding' %}">Edit Profile</a></li>
-  </ul>
-</nav>
-
-<hr>
-
-<h3>Available Jobs</h3>
-
-{% if jobs %}
-  <ul>
-    {% for job in jobs %}
-      <li>
-        <strong>{{ job.title }}</strong> at {{ job.company|default:"—" }} <br>
-        {{ job.location|default:"Remote" }}<br>
-        <a href="{% url 'jobs:job_detail' job.pk %}">View Details</a> |
-        <a href="{% url 'jobs:apply_job' job.pk %}">Apply</a>
-      </li>
-    {% endfor %}
-  </ul>
-{% else %}
-  <p>No current job postings.</p>
-{% endif %}
+<p>Welcome, {{ user.username }}! 🎉</p>
+<p>Here you’ll see your latest notifications, messages, and job updates.</p>
 
 {% endblock %}
