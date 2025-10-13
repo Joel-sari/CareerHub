@@ -12,5 +12,12 @@
 <h2>Recruiter Dashboard</h2>
 <p>Welcome, {{ user.username }}! 🎉</p>
 <p>Here you’ll see your latest notifications, messages, and job updates.</p>
+<div class="mt-3 d-flex gap-2">
+  <a class="btn btn-primary" href="{% url 'jobs:create' %}">Post a Job</a>
+  <a class="btn btn-outline-secondary" href="{% url 'jobs:my_list' %}">
+    Manage / Edit My Jobs
+  </a>
+</div>
+
 
 {% endblock %}

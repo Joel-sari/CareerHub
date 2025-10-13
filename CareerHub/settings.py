@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'home',
     'accounts',
     "widget_tweaks",
+    "jobs",
 ]
 
 MIDDLEWARE = [
