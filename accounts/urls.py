@@ -54,4 +54,10 @@ urlpatterns = [
     path("candidates/<int:user_id>/", views.candidate_profile, name="candidate_profile"),
     path("candidates/<int:user_id>/email/", views.email_candidate, name="email_candidate"),
 
+    # ---------------------------------------------------
+    # ADMIN ROUTES
+    # ---------------------------------------------------
+    path("admin/users/", views.admin_user_list, name="admin_user_list"),
+    path("admin/export-users-csv/", views.export_users_csv, name="export_users_csv"),
+
 ]

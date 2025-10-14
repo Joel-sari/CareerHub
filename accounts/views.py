@@ -11,6 +11,10 @@ from django import forms
 from .forms import SignUpForm, JobSeekerProfileForm, RecruiterProfileForm
 from .models import User, JobSeekerProfile
 
+import csv
+from django.http import JsonResponse
+from django.contrib.auth.decorators import user_passes_test
+
 
 # -------------------------------------------------------
 # Sign Up View
@@ -187,3 +191,35 @@ def email_candidate(request, user_id):
         "form": form,
         "candidate": candidate,
     })
+
+# -------------------------------------------------------
+# Admin Views
+# -------------------------------------------------------
+
+def admin_required(view_func):
+    decorated_view_func = user_passes_test(
+        lambda user: getattr(user, 'is_admin', False),
+        login_url='/accounts/login/')(view_func)
+    return decorated_view_func
+
+# User List (JSON/HTML)
+@admin_required
+def admin_user_list(request):
+    users = User.objects.all().values('id', 'username', 'email', 'role', 'is_admin')
+    if request.GET.get('format') == 'json':
+        return JsonResponse(list(users), safe=False)
+    return render(request, "accounts/admin_user_list.html", {"users": users})
+
+# Export Users as CSV
+@admin_required
+def export_users_csv(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="users.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['ID', 'Username', 'Email', 'Role', 'Is Admin'])
+
+    for user in User.objects.all():
+        writer.writerow([user.id, user.username, user.email, user.role, user.is_admin])
+
+    return response
