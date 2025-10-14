@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Available Jobs</h2>
+<ul>
+  {% for job in jobs %}
+    <li>
+      <a href="{% url 'jobs:job_detail' job.pk %}">{{ job.title }}</a>
+      — {{ job.company }} ({{ job.location }})
+      {% if user.is_authenticated and user.role == 'jobseeker' %}
+        {% if job.applied %}
+          <span class="text-muted">✓ Already Applied</span>
+        {% else %}
+          <a href="{% url 'jobs:apply_job' job.pk %}" class="btn btn-sm btn-primary">Apply</a>
+        {% endif %}
+      {% endif %}
+    </li>
+  {% empty %}
+    <li>No available jobs right now.</li>
+  {% endfor %}
+</ul>
+{% endblock %}
