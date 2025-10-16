@@ -14,7 +14,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Static files (global static folder at project root)
 STATIC_URL = 'static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 
 AUTH_USER_MODEL = "accounts.User"
 
@@ -35,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'import_export',
     'home',
     'accounts',
     "widget_tweaks",

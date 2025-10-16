@@ -44,11 +44,14 @@ class CustomLoginView(LoginView):
 
     def get_success_url(self):
         user = self.request.user
+
+        if getattr(user, 'is_admin', False):
+            return "/accounts/admin/users/"
+        
         if user.role == User.JOB_SEEKER:
             return "/accounts/dashboard/jobseeker/"
         else:
             return "/accounts/dashboard/recruiter/"
-
 
 # -------------------------------------------------------
 # Dashboards
@@ -116,8 +119,6 @@ def view_candidates_placeholder(request):
 @login_required
 def search_jobs_placeholder(request):
     return HttpResponse("Placeholder: Job Search page coming soon.")
-
-
 
 
 # -------------------------------------------------------
