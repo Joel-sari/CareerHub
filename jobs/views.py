@@ -41,20 +41,48 @@ def jobs_my_list(request):
 
 def job_list(request):
     jobs = Job.objects.filter(is_active=True)
+    applied_job_ids = []
+
+    if request.user.is_authenticated and getattr(request.user, "role", None) == User.JOB_SEEKER:
+        applied_job_ids = list(
+            Application.objects.filter(applicant=request.user).values_list("job_id", flat=True)
+        )
+
+    for job in jobs:
+        job.applied = job.id in applied_job_ids
+
     return render(request, "jobs/job_list.html", {"jobs": jobs})
 
 def job_detail(request, pk):
     job = get_object_or_404(Job, pk=pk, is_active=True)
-    return render(request, "jobs/job_detail.html", {"job": job})
+
+    applied = False
+    if request.user.is_authenticated and getattr(request.user, "role", None) == User.JOB_SEEKER:
+        applied = Application.objects.filter(job=job, applicant=request.user).exists()
+
+    return render(request, "jobs/job_detail.html", {
+        "job": job,
+        "applied": applied,
+    })
 
 @login_required
 def apply_to_job(request, pk):
-    job = get_object_or_404(Job, pk=pk)
-    if request.user.role != User.JOB_SEEKER:
-        # you can also raise PermissionDenied, but redirect keeps UX smooth
-        return redirect("home:home")
+    job = get_object_or_404(Job, pk=pk, is_active=True)
+
+    # Only job seekers can apply
+    if getattr(request.user, "role", None) != User.JOB_SEEKER:
+        raise PermissionDenied("Only job seekers can apply for jobs.")
+
+    # Prevent duplicate applications
+    if Application.objects.filter(job=job, applicant=request.user).exists():
+        return render(request, "jobs/apply_form.html", {
+            "job": job,
+            "error": "You have applied for this job."
+        })
+
     if request.method == "POST":
-        note = request.POST.get("note", "")
+        note = request.POST.get("note", "").strip()
         Application.objects.create(job=job, applicant=request.user, note=note)
-        return redirect("jobseeker_dashboard")  # assuming this exists in accounts
+        return redirect("jobs:job_detail", pk=job.pk)
+
     return render(request, "jobs/apply_form.html", {"job": job})
