@@ -25,6 +25,20 @@ class Job(models.Model):
     title = models.CharField(max_length=200)
     company = models.CharField(max_length=200, blank=True)
     location = models.CharField(max_length=200, blank=True)
+    latitude = models.DecimalField(
+        max_digits=9, 
+        decimal_places=6, 
+        null=True, 
+        blank=True, 
+        help_text="The latitude coordinate for map plotting."
+    )
+    longitude = models.DecimalField(
+        max_digits=9, 
+        decimal_places=6, 
+        null=True, 
+        blank=True, 
+        help_text="The longitude coordinate for map plotting."
+    )
     employment_type = models.CharField(max_length=20, choices=EMPLOYMENT_TYPES, default=FULL_TIME)
     description = models.TextField()
     requirements = models.TextField(blank=True)
