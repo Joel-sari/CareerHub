@@ -26,6 +26,9 @@ class User(AbstractUser):
     # - Required for role-based dashboards and features.
     role = models.CharField(max_length=20, choices=ROLE_CHOICES)
 
+    # is_admin marks whether the user has admin privileges
+    is_admin = models.BooleanField(default=False)
+
 
 # -------------------------------------------------------
 # Job Seeker Profile

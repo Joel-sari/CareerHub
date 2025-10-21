@@ -4,7 +4,6 @@ __pycache__/
 
 venv/
 
-
 # Node modules (if you’re using JS frontend)
 node_modules/
 
