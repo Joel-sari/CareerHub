@@ -33,10 +33,12 @@
   {% endif %}
 </div>
 
-{% if user.is_authenticated and user.is_recruiter %}
+{% if user.is_authenticated and user.role == 'recruiter' %}
 <p>
   <a href="{% url 'jobs:my_list' %}" class="btn btn-secondary"
     >← Back to Dashboard</a
+  ><a href="{% url 'jobs:delete_job' job.pk %}" class="btn btn-danger ms-2"
+    >🗑 Delete Job</a
   >
 </p>
 {% endif %} {% if user.is_authenticated and user.role == 'job_seeker' %}
@@ -61,11 +63,23 @@
 
 <script>
   function initMap() {
-    const jobLocation = { lat: {{ job.latitude }}, lng: {{ job.longitude }} };
+    const jobLocation = {
+      lat: {{ job.latitude|default:"null" }},
+      lng: {{ job.longitude|default:"null" }}
+    };
+
+    // If lat/lng are missing, show fallback message instead of breaking
+    if (jobLocation.lat === null || jobLocation.lng === null) {
+      document.getElementById("map").innerHTML =
+        "<div class='alert alert-warning mt-2'>Map not available for this job (no valid coordinates).</div>";
+      return;
+    }
+
     const map = new google.maps.Map(document.getElementById("map"), {
       zoom: 13,
       center: jobLocation,
     });
+
     new google.maps.Marker({
       position: jobLocation,
       map: map,

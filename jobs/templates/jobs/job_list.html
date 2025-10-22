@@ -102,6 +102,34 @@
 </div>
 
 <script>
-  // (keep your same getUserLocation() function here)
+  // Uses HTML5 Geolocation API to get the user's current position,
+  // and reloads the job list page with latitude, longitude, and radius in the query string.
+  function getUserLocation() {
+    const radiusSelect = document.getElementById("radius");
+    const radius = radiusSelect ? radiusSelect.value : 10; // default 10 miles
+
+    // Check if the browser supports geolocation
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
+          // Build the new URL, preserving the base /jobs/ path
+          const baseUrl = window.location.pathname;
+          const params = new URLSearchParams({ lat, lng, radius });
+
+          // Reload the page with the parameters so Django can filter nearby jobs
+          window.location.href = `${baseUrl}?${params.toString()}`;
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          alert("Unable to retrieve your location. Please allow location access or try again.");
+        }
+      );
+    } else {
+      alert("Geolocation is not supported by this browser.");
+    }
+  }
 </script>
 {% endblock %}

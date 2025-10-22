@@ -85,6 +85,35 @@ def jobs_edit(request, pk):
     return render(request, "jobs/job_form.html", {"form": form, "title": f"Edit: {job.title}"})
 
 @login_required
+def delete_job(request, pk):
+    """
+    View to handle deletion of a job post by its recruiter.
+
+    Steps:
+    1. Require user to be logged in.
+    2. Retrieve the Job object by primary key (pk) or return 404 if not found.
+    3. Check if the current user is the recruiter who posted the job.
+       If not, raise PermissionDenied to prevent unauthorized deletion.
+    4. If the request method is POST, delete the job and redirect to the user's job list.
+    5. If the request method is not POST, render a confirmation page asking the recruiter to confirm deletion.
+    """
+    # Retrieve the job or return 404 if it doesn't exist
+    job = get_object_or_404(Job, pk=pk)
+
+    # Ensure the current user is the recruiter who created the job
+    if job.recruiter != request.user:
+        raise PermissionDenied("You do not have permission to delete this job.")
+
+    if request.method == "POST":
+        # User confirmed deletion, so delete the job from the database
+        job.delete()
+        # Redirect to the list of jobs posted by the recruiter after deletion
+        return redirect("jobs:my_list")
+
+    # If not POST, render a confirmation page before deletion
+    return render(request, "jobs/job_confirm_delete.html", {"job": job})
+
+@login_required
 @recruiter_required
 def jobs_my_list(request):
     jobs = Job.objects.filter(recruiter=request.user)
@@ -153,6 +182,7 @@ def job_list(request):
     return render(request, "jobs/job_list.html", {
         "nearby_jobs": nearby_jobs,
         "all_jobs": all_jobs,
+        "GOOGLE_MAPS_API_KEY": settings.GOOGLE_MAPS_API_KEY,  # <-- add this
     })
 
 def job_detail(request, pk):
