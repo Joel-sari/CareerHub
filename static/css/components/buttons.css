@@ -1,0 +1,48 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  /* Primary Button (Gold gradient) */
+  .btn-primary {
+    @apply rounded-full px-8 py-3 text-[18px] font-semibold text-[#233250]
+           bg-[linear-gradient(180deg,#EFCE63_48%,#BD9B2E_100%)]
+           shadow-[inset_0_10px_12px_rgba(114,94,29,0.28)]
+           transition-opacity duration-200 ease-in-out;
+  }
+
+  .btn-primary:hover {
+    @apply opacity-90;
+  }
+
+  /* Secondary Button (Blue solid) */
+  .btn-secondary {
+    @apply rounded-full px-8 py-3 text-[18px] font-semibold text-white
+           bg-[#42547C] border border-[#2c3b5e]
+           shadow-[0_2px_4px_rgba(0,0,0,0.3)]
+           transition-transform duration-200 ease-in-out;
+  }
+
+  .btn-secondary:hover {
+    @apply scale-[1.03];
+  }
+
+  /* Job Seeker & Recruiter variants */
+  .btn-jobseeker {
+    @apply bg-[linear-gradient(180deg,#EFCE63_48%,#BD9B2E_100%)] text-[#233250];
+  }
+
+  .btn-recruiter {
+    @apply bg-[#42547C] text-white border border-[#BD9B2E];
+  }
+
+  .btn-jobseeker:hover,
+  .btn-recruiter:hover {
+    @apply opacity-90;
+  }
+
+  /* “Chosen” state for role selection */
+  .btn-selected {
+    @apply ring-2 ring-[#EFCE63] ring-offset-2 scale-[1.05];
+  }
+}

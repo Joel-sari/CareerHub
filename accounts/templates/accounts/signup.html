@@ -1,95 +1,126 @@
-{% extends "base.html" %} {% load widget_tweaks %} {% block content %}
+{% extends "base.html" %}
+{% block page_container %}w-full{% endblock %}
+{% block navbar %}{% endblock %}
+{% load static %}
+{% block content %}
+<div class="flex flex-col md:flex-row-reverse w-full h-screen">
+  <!-- Right section (white panel with signup form) -->
+  <div class="flex flex-col justify-center items-center bg-white text-[#233250] w-full md:w-1/2 h-screen md:min-h-screen py-0 md:self-stretch md:-translate-x-[20px]">
+    <div class="bg-white shadow-[0_8px_15px_rgba(0,0,0,0.2)] rounded-2xl p-10 w-[440px] max-w-[90%] border border-gray-200">
+      <h2 class="text-2xl font-semibold mb-6 text-center">Create Account</h2>
 
-<h2>Create an Account</h2>
+      <form method="post" class="space-y-5">
+        {% csrf_token %}
 
-<!-- 
-  Signup form using SignUpForm from accounts/forms.py.
-  Explicitly renders each field so that the role dropdown is visible.
-  Simple inline styles are used instead of TailwindCSS for easier teamwork.
--->
+        <div>
+          <label for="id_username" class="block text-sm font-medium mb-2">Username</label>
+          <input
+            type="text"
+            name="username"
+            id="id_username"
+            class="w-full px-4 py-3 rounded-full bg-[#E8F0FE] border-2 border-accent/70 focus:ring-2 focus:ring-accent focus:outline-none text-[#233250]"
+            required
+          />
+        </div>
 
-<form
-  method="post"
-  style="
-    max-width: 400px;
-    margin: auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-  "
->
-  {% csrf_token %}
+        <div>
+          <label for="id_email" class="block text-sm font-medium mb-2">Email</label>
+          <input
+            type="email"
+            name="email"
+            id="id_email"
+            class="w-full px-4 py-3 rounded-full bg-[#E8F0FE] border-2 border-transparent focus:ring-2 focus:ring-accent focus:outline-none text-[#233250]"
+            required
+          />
+        </div>
 
-  {% if form.non_field_errors %}
-    <div style="color: red; margin-bottom: 10px;">
-      {% for error in form.non_field_errors %}
-        <p>{{ error }}</p>
-      {% endfor %}
+        <div>
+          <label for="id_password1" class="block text-sm font-medium mb-2">Password</label>
+          <input
+            type="password"
+            name="password1"
+            id="id_password1"
+            class="w-full px-4 py-3 rounded-full bg-[#E8F0FE] border-2 border-transparent focus:ring-2 focus:ring-accent focus:outline-none text-[#233250]"
+            required
+          />
+        </div>
+
+        <div>
+          <label for="id_password2" class="block text-sm font-medium mb-2">Confirm Password</label>
+          <input
+            type="password"
+            name="password2"
+            id="id_password2"
+            class="w-full px-4 py-3 rounded-full bg-[#E8F0FE] border-2 border-transparent focus:ring-2 focus:ring-accent focus:outline-none text-[#233250]"
+            required
+          />
+        </div>
+
+        <!-- Role Selection -->
+        <div class="mt-8 text-center">
+          <h3 class="text-lg font-semibold mb-4">Join CareerHub as...</h3>
+          <div class="flex justify-center gap-6">
+            <label class="cursor-pointer">
+              <input
+                type="radio"
+                name="role"
+                value="job_seeker"
+                class="hidden peer"
+                required
+              />
+              <div
+                class="peer-checked:btn-selected btn-secondary text-sm font-medium px-8 py-3"
+              >
+                Job Seeker
+              </div>
+            </label>
+
+            <label class="cursor-pointer">
+              <input
+                type="radio"
+                name="role"
+                value="recruiter"
+                class="hidden peer"
+                required
+              />
+              <div
+                class="peer-checked:btn-selected btn-secondary text-sm font-medium px-8 py-3"
+              >
+                Recruiter
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Centered gold Sign Up button -->
+        <div class="flex justify-center">
+          <button
+            type="submit"
+            class="btn-primary px-8 py-3 mt-6 mx-auto block text-center"
+          >
+            Sign Up
+          </button>
+        </div>
+      </form>
+
+      <p class="text-center text-sm text-[#233250] mt-6">
+        Already have an account?
+        <a href="{% url 'login' %}" class="text-[#233250] font-semibold hover:underline"
+          >Log in here</a
+        >
+      </p>
     </div>
-  {% endif %}
+  </div>
 
-  <!-- Username field -->
-  <p>
-    {{ form.username.label_tag }} {{ form.username|add_class:"custom-input" }}
-  </p>
-
-  <!-- Email field -->
-  <p>{{ form.email.label_tag }} {{ form.email|add_class:"custom-input" }}</p>
-
-  <!-- Role dropdown (Job Seeker / Recruiter) -->
-  <p>{{ form.role.label_tag }} {{ form.role|add_class:"custom-input" }}</p>
-
-  <!-- Password1 field -->
-  <p>
-    {{ form.password1.label_tag }} {{ form.password1|add_class:"custom-input" }}
-    <small style="color: gray;">{{ form.password1.help_text }}</small>
-    {% if form.password1.errors %}
-      <ul style="color: red; list-style: none; padding: 0;">
-        {% for error in form.password1.errors %}
-          <li>{{ error }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-  </p>
-
-  <!-- Password2 confirmation -->
-  <p>
-    {{ form.password2.label_tag }} {{ form.password2|add_class:"custom-input" }}
-    <small style="color: gray;">{{ form.password2.help_text }}</small>
-    {% if form.password2.errors %}
-      <ul style="color: red; list-style: none; padding: 0;">
-        {% for error in form.password2.errors %}
-          <li>{{ error }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-  </p>
-
-  <!-- Submit button -->
-  <button
-    type="submit"
-    style="
-      width: 100%;
-      padding: 10px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    "
-  >
-    Sign Up
-  </button>
-</form>
-
-<style>
-  .custom-input {
-    width: 100%;
-    padding: 8px;
-    margin-top: 4px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-</style>
-
+  <!-- Left section (blue background with illustration + text) -->
+  <div class="flex flex-col justify-center items-center bg-primary text-white w-full md:w-1/2 min-h-screen px-10 text-center">
+    <h1 class="text-5xl font-montserrat font-bold mb-3">Launch your career</h1>
+    <p class="text-accent text-xl mb-8">Get Started Today!</p>
+    <img
+      src="{% static 'images/people_vector1.png' %}"
+      alt="Career illustration"
+      class="w-[450px] h-auto mt-4 select-none pointer-events-none"
+    />
+  </div>
+</div>
 {% endblock %}

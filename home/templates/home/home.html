@@ -1,25 +1,49 @@
-{% extends "base.html" %} {% block content %}
-<h1>Welcome to CareerHub</h1>
+{% extends "base.html" %}
+{% block page_container %}w-full{% endblock %}
+{% block navbar %}{% endblock %}
+{% load static %}
+{% block content %}
+<!-- Use flex for perfect centering on all screens -->
+<div class="flex flex-col items-center justify-center min-h-screen bg-primary text-white text-center">
 
-{% if not user.is_authenticated %}
-<!-- If not logged in, show signup/login -->
-<nav>
-  <a href="{% url 'signup' %}">Sign Up</a>
-  <a href="{% url 'login' %}">Login</a>
-</nav>
-{% else %}
-<!-- Logged in -->
-<p>Hello, {{ user.username }} ({{ user.role }})</p>
+  <!-- Slight visual centering correction -->
+<div class="relative flex flex-col items-center translate-x-[50px] sm:translate-x-[16px] md:translate-x-[12px]">
+    <h1 class="text-[90px] font-montserrat font-bold leading-none tracking-tight relative flex items-center justify-center">
+      <span class="relative inline-block">
+        <img
+          src="{% static 'images/logo_hat.png' %}"
+          alt="Career Hub logo"
+          class="pointer-events-none select-none absolute -top-[30px] -left-[50px] w-[84px] h-[84px]"
+        />
+        <span class="bg-[linear-gradient(180deg,#EFCE63_48%,#BD9B2E_100%)] bg-clip-text text-transparent">
+          Career
+        </span>
+      </span>
+      <span class="text-white ml-2">Hub</span>
+    </h1>
 
-{% if user.role == "job_seeker" %}
-<a href="{% url 'jobseeker_dashboard' %}">Go to Job Seeker Dashboard</a>
-{% else %}
-<a href="{% url 'recruiter_dashboard' %}">Go to Recruiter Dashboard</a>
-{% endif %}
+    <p class="font-arimo italic text-[18px] mt-3 text-white/90">
+      "One Hub. Infinite Careers"
+    </p>
 
-<!-- Logout is available for ALL logged-in users -->
-<form method="post" action="{% url 'logout' %}" style="display: inline">
-  {% csrf_token %}
-  <button type="submit">Logout</button>
-</form>
-{% endif %} {% endblock %}
+    <div class="mt-8 flex justify-center gap-8">
+      <a href="{% url 'login' %}"
+         class="rounded-full px-8 py-3 text-[20px] font-semibold text-[#233250]
+                bg-[linear-gradient(180deg,#EFCE63_48%,#BD9B2E_100%)]
+                shadow-[inset_0_10px_12px_rgba(114,94,29,0.28)]
+                hover:opacity-90 transition-opacity">
+        Log In
+      </a>
+
+      <a href="{% url 'signup' %}"
+         class="rounded-full px-8 py-3 text-[20px] font-semibold text-[#233250]
+                bg-[linear-gradient(180deg,#EFCE63_48%,#BD9B2E_100%)]
+                shadow-[inset_0_10px_12px_rgba(114,94,29,0.28)]
+                hover:opacity-90 transition-opacity">
+        Sign Up
+      </a>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
