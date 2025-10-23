@@ -1,3 +1,60 @@
+/* Tailwind base layers (import only once) */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Optional: global reset / defaults */
+body {
+  @apply bg-primary text-white font-montserrat;
+}
+
+/* -----------------------------------------------------
+   Custom Components Layer
+----------------------------------------------------- */
+@layer components {
+  /* Primary Button (Gold gradient) */
+  .btn-primary {
+    @apply rounded-full px-8 py-3 text-[18px] font-semibold text-[#233250]
+           bg-[linear-gradient(180deg,#EFCE63_48%,#BD9B2E_100%)]
+           shadow-[inset_0_10px_12px_rgba(114,94,29,0.28)]
+           transition-all duration-200 ease-in-out;
+  }
+
+  .btn-primary:hover {
+    @apply opacity-90;
+  }
+
+  /* Secondary Button (Blue solid) */
+  .btn-secondary {
+    @apply rounded-full px-8 py-3 text-[18px] font-semibold text-white
+           bg-[#42547C] border border-[#2c3b5e]
+           shadow-[0_2px_4px_rgba(0,0,0,0.3)]
+           transition-all duration-200 ease-in-out;
+  }
+
+  .btn-secondary:hover {
+    @apply scale-[1.03];
+  }
+
+  /* Chosen (Selected) Button — turns gold */
+  .btn-selected {
+    @apply text-[#233250]
+           bg-[linear-gradient(180deg,#EFCE63_48%,#BD9B2E_100%)]
+           shadow-[inset_0_10px_12px_rgba(114,94,29,0.28)]
+           border-none scale-[1.05]
+           transition-all duration-200 ease-in-out;
+  }
+  
+  @layer base {
+  input, select {
+    @apply w-full px-4 py-3 rounded-full bg-[#E8F0FE] text-[#233250]
+           border-2 border-[#bd9b2e]/30 focus:ring-2 focus:ring-accent focus:outline-none;
+  }
+
+  textarea {
+    @apply w-full px-4 py-3 rounded-md bg-[#E8F0FE] text-[#233250]
+           border-2 border-[#bd9b2e]/30 focus:ring-2 focus:ring-accent focus:outline-none min-h-[120px];
+  }
+}
+}
+

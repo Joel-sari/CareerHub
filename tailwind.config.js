@@ -1,20 +1,23 @@
-/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
-    "./templates/**/*.{html,js}",
-    "./accounts/templates/**/*.{html,js}",
-    "./home/templates/**/*.{html,js}",
-    "./jobs/templates/**/*.{html,js}",
-    "./static/js/**/*.{js,jsx}"
+    "./templates/**/*.html",
+    "./**/templates/**/*.html",
+    "./static/js/**/*.js",
+    "./static/css/**/*.css",
+    "./**/*.html",
+
   ],
   theme: {
     extend: {
       colors: {
-        primary: "#3b82f6",
-        secondary: "#64748b",
+        primary: "#42547C",
+        accent: "#EFCE63",
+        success: "#26B509",
+        warning: "#F36E6E",
       },
       fontFamily: {
-        sans: ["Inter", "sans-serif"],
+        montserrat: ["Montserrat", "sans-serif"],
+        arimo: ["Arimo", "sans-serif"],
       },
     },
   },

@@ -1,0 +1,9 @@
+<h1>{{ job.title }}</h1>
+<p>{{ job.description }}</p>
+
+<form method="post" action="{% url 'apply_job' job.id %}">
+  {% csrf_token %}
+  <label for="note">Tailored note (optional):</label>
+  <textarea name="note" rows="4" cols="50"></textarea>
+  <button type="submit" class="btn btn-primary">Apply with One Click</button>
+</form>
