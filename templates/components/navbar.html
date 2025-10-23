@@ -1,0 +1,25 @@
+{% load static %}
+<!-- templates/components/navbar.html -->
+<nav class="w-full h-[60px] flex items-center justify-between bg-[#42547b] px-6 shadow-md">
+  <!-- Left: Logo -->
+  <div class="flex items-center gap-2">
+    <img src="{% static 'images/logo_hat.png' %}" alt="Career Hub Logo" class="w-[28px] h-[28px] object-contain">
+    <span class="ml-2 bg-gradient-to-b from-[#EFCE63] to-[#BD9B2E] bg-clip-text text-transparent font-bold text-xl tracking-tight">Career</span>
+    <span class="ml-1 bg-gradient-to-b from-white to-[#A6A6A6] bg-clip-text text-transparent font-bold text-xl tracking-tight">Hub</span>
+  </div>
+
+  <!-- Right: Icons -->
+  <div class="flex items-center gap-6">
+    <button aria-label="Grid menu" class="w-6 h-6 opacity-80 hover:opacity-100 transition-opacity">
+      <img src="{% static 'images/icon_dashboard.png' %}" alt="Menu" class="w-full h-full">
+    </button>
+
+    <button aria-label="Notifications" class="w-6 h-6 opacity-80 hover:opacity-100 transition-opacity">
+      <img src="{% static 'images/icon_notifications.png' %}" alt="Notifications" class="w-full h-full">
+    </button>
+
+    <button aria-label="User profile" class="w-8 h-8 rounded-full bg-[#d9d9d9] overflow-hidden border-2 border-[#efce63] hover:ring-2 hover:ring-[#efce63] transition-all">
+      <img src="{% static 'images/icon_profile.png' %}" alt="User" class="w-full h-full object-cover">
+    </button>
+  </div>
+</nav>

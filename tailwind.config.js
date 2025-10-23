@@ -3,7 +3,9 @@ module.exports = {
     "./templates/**/*.html",
     "./**/templates/**/*.html",
     "./static/js/**/*.js",
-    "./static/css/**/*.css"
+    "./static/css/**/*.css",
+    "./**/*.html",
+
   ],
   theme: {
     extend: {

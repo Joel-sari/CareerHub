@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Arimo:ital@1&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/output.css' %}">
   </head>
-
+<!-- Only show navbar if you are logged in-->
 <body class="{% if user.is_authenticated %}bg-white text-[#233250]{% else %}bg-primary text-white{% endif %} font-montserrat">
     {# --- Navbar (child templates can override/blank this block) --- #}
     {% block navbar %}
