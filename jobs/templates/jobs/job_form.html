@@ -1,13 +1,72 @@
-{% extends "base.html" %}
+{% extends "base.html" %} {% block content %}
+<div class="container mt-4 mb-5">
+  <h2 class="mb-4">{{ title }}</h2>
 
-{% block content %}
-  <h2>{{ title }}</h2>
-  <form method="post">
+  <form method="post" class="card shadow-sm p-4 border-0">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Save</button>
+
+    <!-- Job Basics -->
+    <h4 class="text-primary mb-3">Job Details</h4>
+    <div class="row mb-3">
+      <div class="col-md-6">{{ form.title.label_tag }} {{ form.title }}</div>
+      <div class="col-md-6">
+        {{ form.company.label_tag }} {{ form.company }}
+      </div>
+    </div>
+
+    <!-- Address Info -->
+    <h4 class="text-primary mt-4 mb-3">Job Location</h4>
+    <div class="row mb-3">
+      <div class="col-md-12">
+        {{ form.street_address.label_tag }} {{ form.street_address }}
+      </div>
+    </div>
+    <div class="row mb-3">
+      <div class="col-md-4">{{ form.city.label_tag }} {{ form.city }}</div>
+      <div class="col-md-4">{{ form.state.label_tag }} {{ form.state }}</div>
+      <div class="col-md-4">
+        {{ form.zip_code.label_tag }} {{ form.zip_code }}
+      </div>
+    </div>
+    <div class="row mb-3">
+      <div class="col-md-6">
+        {{ form.country.label_tag }} {{ form.country }}
+      </div>
+      <div class="col-md-6">
+        {{ form.employment_type.label_tag }} {{ form.employment_type }}
+      </div>
+    </div>
+
+    <!-- Description & Requirements -->
+    <h4 class="text-primary mt-4 mb-3">Description & Requirements</h4>
+    <div class="mb-3">
+      {{ form.description.label_tag }} {{ form.description }}
+    </div>
+    <div class="mb-3">
+      {{ form.requirements.label_tag }} {{ form.requirements }}
+    </div>
+
+    <!-- Salary Info -->
+    <h4 class="text-primary mt-4 mb-3">Salary Range</h4>
+    <div class="row mb-3">
+      <div class="col-md-6">
+        {{ form.min_salary.label_tag }} {{ form.min_salary }}
+      </div>
+      <div class="col-md-6">
+        {{ form.max_salary.label_tag }} {{ form.max_salary }}
+      </div>
+    </div>
+
+    <!-- Status Toggle -->
+    <div class="form-check mb-4">
+      {{ form.is_active }} {{ form.is_active.label_tag }}
+    </div>
+
+    <!-- Buttons -->
+    <button type="submit" class="btn btn-primary">Save Job</button>
+    <a href="{% url 'jobs:my_list' %}" class="btn btn-secondary ms-2"
+      >← Back to Dashboard</a
+    >
   </form>
-    <p>
-  <a href="{% url 'jobs:my_list' %}" class="btn btn-secondary">← Back to Dashboard</a>
-    </p>
+</div>
 {% endblock %}
