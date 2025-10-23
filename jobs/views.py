@@ -14,6 +14,9 @@ from accounts.models import User
 from .forms import JobForm
 from .decorators import recruiter_required
 
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
+
 def haversine_distance(lat1, lon1, lat2, lon2):
     """
     Calculate the great-circle distance between two points 
@@ -219,3 +222,35 @@ def apply_to_job(request, pk):
         return redirect("jobs:job_detail", pk=job.pk)
 
     return render(request, "jobs/apply_form.html", {"job": job})
+
+@login_required
+def job_map(request):
+    """
+    Full-screen page with a world map and all job pins.
+    Separate from the per-job map on job_detail.
+    """
+    return render(request, "jobs/job_map.html", {
+        "GOOGLE_MAPS_API_KEY": settings.GOOGLE_MAPS_API_KEY,
+    })
+
+@login_required
+def jobs_map_api(request):
+    """
+    Lightweight JSON for pins on the all-jobs map.
+    """
+    qs = Job.objects.filter(is_active=True).exclude(latitude__isnull=True).exclude(longitude__isnull=True)
+
+    data = []
+    for j in qs:
+        data.append({
+            "id": j.id,
+            "title": j.title,
+            "company": getattr(j, "company", ""),
+            "location": getattr(j, "location", ""),
+            "lat": float(j.latitude),
+            "lng": float(j.longitude),
+            # Use your existing get_absolute_url if present; else fall back.
+            "detailUrl": j.get_absolute_url() if hasattr(j, "get_absolute_url") else f"/jobs/{j.id}/",
+        })
+
+    return JsonResponse({"jobs": data})
