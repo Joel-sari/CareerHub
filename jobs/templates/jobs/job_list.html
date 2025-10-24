@@ -4,6 +4,92 @@
 
   <h2 class="mb-3">Find Your Next Opportunity</h2>
 
+<!-- FILTER FORM USER STORY 2-->
+<form method="get" class="mb-3 p-2 border rounded bg-light">
+  <div class="d-flex flex-wrap align-items-center gap-2">
+    <!-- Job Title -->
+    <input
+      type="text"
+      name="title"
+      class="form-control form-control-sm"
+      placeholder="Title"
+      value="{{ request.GET.title }}"
+      style="width: 90px;"
+    />
+
+    <!-- Skills -->
+    <input
+      type="text"
+      name="skills"
+      class="form-control form-control-sm"
+      placeholder="Skills"
+      value="{{ request.GET.skills }}"
+      style="width: 90px;"
+    />
+
+    <!-- Salary Range -->
+    <input
+      type="number"
+      name="salary_min"
+      class="form-control form-control-sm"
+      placeholder="Min $"
+      value="{{ request.GET.salary_min }}"
+      style="width: 100px;"
+    />
+    <input
+      type="number"
+      name="salary_max"
+      class="form-control form-control-sm"
+      placeholder="Max $"
+      value="{{ request.GET.salary_max }}"
+      style="width: 100px;"
+    />
+
+    <!-- Work Type -->
+    <select
+      name="remote"
+      class="form-select form-select-sm"
+      style="width: 90px;"
+    >
+      <option value="">Any</option>
+      <option value="true" {% if request.GET.remote == 'true' %}selected{% endif %}>Remote</option>
+      <option value="false" {% if request.GET.remote == 'false' %}selected{% endif %}>On-site</option>
+    </select>
+
+    <!-- Visa Sponsorship -->
+    <select
+      name="visa"
+      class="form-select form-select-sm"
+      style="width: 90px;"
+    >
+      <option value="">Any</option>
+      <option value="true" {% if request.GET.visa == 'true' %}selected{% endif %}>Visa</option>
+      <option value="false" {% if request.GET.visa == 'false' %}selected{% endif %}>No Visa</option>
+    </select>
+
+    <!-- Submit Button -->
+    <button
+      type="submit"
+      class="btn"
+      style="
+        background-color: #d4af37;
+        color: #2c3e50;       /* dark navy/charcoal text */
+        font-weight: 600;
+        border: none;
+        border-radius: 9999px;
+        padding: 6px 16px;
+        height: 38px;
+      "
+    >
+      <i class="bi bi-search me-1"></i> Search
+    </button>
+
+
+  </div>
+</form>
+
+
+
   {% if user.is_authenticated and user.role == 'job_seeker' %}
   <!-- LOCATION TOOLBAR -->
   <div class="d-flex align-items-center justify-content-between mb-4">
@@ -23,6 +109,7 @@
 
     <div id="radius-info"></div>
   </div>
+
   {% endif %}
 
   <!-- ========================= -->
@@ -102,24 +189,17 @@
 </div>
 
 <script>
-  // Uses HTML5 Geolocation API to get the user's current position,
-  // and reloads the job list page with latitude, longitude, and radius in the query string.
   function getUserLocation() {
     const radiusSelect = document.getElementById("radius");
-    const radius = radiusSelect ? radiusSelect.value : 10; // default 10 miles
+    const radius = radiusSelect ? radiusSelect.value : 10;
 
-    // Check if the browser supports geolocation
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           const lat = position.coords.latitude;
           const lng = position.coords.longitude;
-
-          // Build the new URL, preserving the base /jobs/ path
           const baseUrl = window.location.pathname;
           const params = new URLSearchParams({ lat, lng, radius });
-
-          // Reload the page with the parameters so Django can filter nearby jobs
           window.location.href = `${baseUrl}?${params.toString()}`;
         },
         (error) => {

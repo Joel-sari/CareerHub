@@ -57,6 +57,17 @@
       </div>
     </div>
 
+    <!-- Remote and Visa filters for user story 2 -->
+    <h4 class="text-primary mt-4 mb-3">Work Type & Sponsorship</h4>
+    <div class="row mb-3">
+      <div class="col-md-6">
+        {{ form.remote.label_tag }} {{ form.remote }}
+      </div>
+      <div class="col-md-6">
+        {{ form.visa_sponsorship.label_tag }} {{ form.visa_sponsorship }}
+      </div>
+    </div>
+
     <!-- Status Toggle -->
     <div class="form-check mb-4">
       {{ form.is_active }} {{ form.is_active.label_tag }}
