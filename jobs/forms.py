@@ -1,6 +1,7 @@
 from django import forms
 from .models import Job
 
+
 class JobForm(forms.ModelForm):
     class Meta:
         model = Job
@@ -72,18 +73,16 @@ class JobForm(forms.ModelForm):
                 "class": "form-control",
                 "placeholder": "Maximum Salary",
             }),
-
-            # ✅ Dropdown replacements for Boolean fields
-            "is_active": forms.Select(
-                choices=[(True, "Active"), (False, "Inactive")],
-                attrs={"class": "form-select"}
-            ),
             "remote": forms.Select(
                 choices=[(True, "Remote"), (False, "On-site")],
-                attrs={"class": "form-select"}
+                attrs={"class": "form-select"},
             ),
             "visa_sponsorship": forms.Select(
                 choices=[(True, "Visa Sponsorship"), (False, "No Sponsorship")],
-                attrs={"class": "form-select"}
+                attrs={"class": "form-select"},
+            ),
+            "is_active": forms.Select(
+                choices=[(True, "Active"), (False, "Inactive")],
+                attrs={"class": "form-select"},
             ),
         }
