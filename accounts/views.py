@@ -7,6 +7,7 @@ from django.http import HttpResponseForbidden
 from django.core.mail import EmailMessage
 from django.conf import settings
 from django import forms
+from django.db import models
 
 from .forms import SignUpForm, JobSeekerProfileForm, RecruiterProfileForm
 from .models import User, JobSeekerProfile
@@ -130,9 +131,45 @@ def search_jobs_placeholder(request):
 def candidate_list(request):
     if request.user.role != User.RECRUITER:
         return HttpResponseForbidden("Only recruiters can view candidates.")
-    
+
+    # --- BASE QUERYSET ---
     candidates = JobSeekerProfile.objects.filter(is_public=True)
-    return render(request, "accounts/candidate_list.html", {"candidates": candidates})
+
+    # --- FILTER INPUTS ---
+    name = request.GET.get("name", "").strip()
+    skills = request.GET.get("skills", "").strip()
+    education = request.GET.get("education", "").strip()
+    location = request.GET.get("location", "").strip()
+
+    # --- APPLY FILTERS ---
+    if name:
+        candidates = candidates.filter(user__username__icontains=name)
+
+    if skills:
+        candidates = candidates.filter(skills__icontains=skills)
+
+    if education:
+        candidates = candidates.filter(education__icontains=education)
+
+    # Match the single "location" field across multiple address fields
+    if location:
+        candidates = candidates.filter(
+            models.Q(city__icontains=location)
+            | models.Q(state__icontains=location)
+            | models.Q(country__icontains=location)
+        )
+
+    # --- RENDER TEMPLATE ---
+    return render(request, "accounts/candidate_list.html", {
+        "candidates": candidates,
+    })
+
+    # ==============================
+
+    return render(request, "accounts/candidate_list.html", {
+        "candidates": candidates,
+    })
+
 
 
 # Candidate Profile (Recruiter only)
