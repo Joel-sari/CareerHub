@@ -1,0 +1,62 @@
+<!-- templates/components/profile_hud.html -->
+<div id="profile-hud"
+     class="hidden absolute right-6 bottom-[50px] w-80 bg-white border border-[#2b3853]/50
+            rounded-xl shadow-lg p-5 z-50">
+  <!-- User Info -->
+  <div class="flex items-center gap-4 mb-4">
+    <div class="w-12 h-12 bg-gray-300 rounded-full"></div>
+    <div>
+      <p class="font-bold text-base text-[#233250]">
+        {{ user.get_full_name|default:user.username }}
+      </p>
+      <p class="text-sm text-gray-600">{{ user.email }}</p>
+    </div>
+  </div>
+
+  <hr class="my-3 border-gray-300/40">
+
+  <!-- Role-based Links -->
+  <ul class="space-y-2">
+    {% if user.role == 'job_seeker' %}
+      <li>
+        <a href="{% url 'jobseeker_onboarding' %}"
+           class="block font-medium text-[#233250] hover:text-[#42547b] transition-colors">
+          Edit Profile
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'jobs:job_list' %}"
+           class="block font-medium text-[#233250] hover:text-[#42547b] transition-colors">
+          View Jobs
+        </a>
+      </li>
+
+    {% elif user.role == 'recruiter' %}
+      <li>
+        <a href="{% url 'recruiter_onboarding' %}"
+           class="block font-medium text-[#233250] hover:text-[#42547b] transition-colors">
+          Edit Profile
+        </a>
+      </li>
+      <li>
+        <a href="{% url 'jobs:my_list' %}"
+           class="block font-medium text-[#233250] hover:text-[#42547b] transition-colors">
+          My Job Listings
+        </a>
+      </li>
+    {% endif %}
+
+    <li class="block font-medium text-gray-400 cursor-not-allowed">Notifications</li>
+  </ul>
+
+  <hr class="my-3 border-gray-300/40">
+
+  <!-- Logout -->
+  <form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit"
+            class="block w-full text-left text-red-600 font-semibold hover:text-red-700 transition-colors">
+      Log Out
+    </button>
+  </form>
+</div>
