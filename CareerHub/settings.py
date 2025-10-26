@@ -34,7 +34,12 @@ SECRET_KEY = 'django-insecure-54_914(cnuq$$!6=+xewf4mk8mlm!_pa(xe7y23+&8-tlk(ab!
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'careerhub-joelsari.pythonanywhere.com',
+    'www.careerhub-joelsari.pythonanywhere.com',
+    '127.0.0.1',  # optional for local testing
+    'localhost',  # optional for local testing
+]
 
 
 # Application definition
