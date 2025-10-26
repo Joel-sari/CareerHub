@@ -4,8 +4,24 @@ from .models import Job, Application
 
 @admin.register(Job)
 class JobAdmin(admin.ModelAdmin):
-    list_display = ("title", "company", "location", "employment_type", "is_active", "recruiter", "created_at")
-    list_filter = ("employment_type", "is_active", "created_at")
+    list_display = (
+        "title",
+        "company",
+        "location",
+        "employment_type",
+        "remote",
+        "visa_sponsorship",
+        "is_active",
+        "recruiter",
+        "created_at",
+    )
+    list_filter = (
+        "employment_type",
+        "remote",
+        "visa_sponsorship",
+        "is_active",
+        "created_at",
+    )
     search_fields = ("title", "company", "location", "description", "requirements")
 
 @admin.register(Application)

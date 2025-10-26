@@ -47,6 +47,12 @@ class JobSeekerProfile(models.Model):
     skills = models.TextField(blank=True)
     education = models.TextField(blank=True)
     work_experience = models.TextField(blank=True)
+    # New Address Fields (Needed for User Story 11)
+    street_address = models.CharField(max_length=255, blank=True)
+    city = models.CharField(max_length=100, blank=True)
+    state = models.CharField(max_length=100, blank=True)
+    zip_code = models.CharField(max_length=20, blank=True)
+    country = models.CharField(max_length=100, blank=True)
 
     # Privacy option: job seeker can hide their profile
     is_public = models.BooleanField(default=True)

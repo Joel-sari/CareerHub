@@ -8,10 +8,23 @@
       Complete Your Job Seeker Profile
     </h2>
 
+    <pre style="background:#f7f7f7; padding:8px;">
+    Fields in form: {{ form.fields.keys }}
+    </pre>
+
+
     <form method="post" class="space-y-6">
       {% csrf_token %}
+
+      <!-- temp remove later -->
+      <pre style="font-size:12px;color:#666">
+      Fields in form:
+      {% for f in form %}{{ f.name }} {% endfor %}
+      </pre>
+
+      <!-- Basic Info -->
       {% for field in form %}
-        {% if field.name != "is_public" %}
+        {% if field.name not in "is_public street_address city state zip_code country" %}
           <div class="flex flex-col space-y-2">
             <label for="{{ field.id_for_label }}" class="font-semibold text-sm text-[#233250]">
               {{ field.label }}
@@ -25,6 +38,35 @@
           </div>
         {% endif %}
       {% endfor %}
+
+      <!-- Location Section -->
+      <h3 class="text-lg font-semibold mt-8 mb-3">Location</h3>
+      <div class="grid grid-cols-1 gap-4">
+        <div>
+          <label class="font-semibold text-sm">{{ form.street_address.label }}</label>
+          {{ form.street_address|add_class:"w-full px-4 py-3 rounded-lg bg-[#E8F0FE] text-[#233250] border-2 border-[#bd9b2e]/40 focus:ring-2 focus:ring-accent focus:outline-none" }}
+        </div>
+
+        <div>
+          <label class="font-semibold text-sm">{{ form.city.label }}</label>
+          {{ form.city|add_class:"w-full px-4 py-3 rounded-lg bg-[#E8F0FE] text-[#233250] border-2 border-[#bd9b2e]/40 focus:ring-2 focus:ring-accent focus:outline-none" }}
+        </div>
+
+        <div>
+          <label class="font-semibold text-sm">{{ form.state.label }}</label>
+          {{ form.state|add_class:"w-full px-4 py-3 rounded-lg bg-[#E8F0FE] text-[#233250] border-2 border-[#bd9b2e]/40 focus:ring-2 focus:ring-accent focus:outline-none" }}
+        </div>
+
+        <div>
+          <label class="font-semibold text-sm">{{ form.zip_code.label }}</label>
+          {{ form.zip_code|add_class:"w-full px-4 py-3 rounded-lg bg-[#E8F0FE] text-[#233250] border-2 border-[#bd9b2e]/40 focus:ring-2 focus:ring-accent focus:outline-none" }}
+        </div>
+
+        <div>
+          <label class="font-semibold text-sm">{{ form.country.label }}</label>
+          {{ form.country|add_class:"w-full px-4 py-3 rounded-lg bg-[#E8F0FE] text-[#233250] border-2 border-[#bd9b2e]/40 focus:ring-2 focus:ring-accent focus:outline-none" }}
+        </div>
+      </div>
 
       <!-- Profile Visibility Toggle -->
       <div class="mt-8">
@@ -54,6 +96,7 @@
         </div>
       </div>
 
+      <!-- Save Button -->
       <div class="flex justify-center mt-10">
         <button
           type="submit"
