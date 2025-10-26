@@ -87,59 +87,61 @@
 <!-- JS - Inline style ensures immediate availability -->
 <script>
 (function() {
-  'use strict';
-  
-  var profileBtn = document.getElementById('profile-btn');
-  var profileHud = document.getElementById('profile-hud');
-  var isAnimating = false;
-  
-  function toggleHud(e) {
-    if (e) {
-      e.stopPropagation();
-      e.preventDefault();
-    }
-    
-    if (!profileHud || isAnimating) return;
-    
-    isAnimating = true;
-    
-    var currentOpacity = profileHud.style.opacity;
-    var isHidden = currentOpacity === '0' || currentOpacity === '';
-    
-    if (isHidden) {
-      profileHud.style.opacity = '1';
-      profileHud.style.pointerEvents = 'auto';
-    } else {
-      profileHud.style.opacity = '0';
-      profileHud.style.pointerEvents = 'none';
-    }
-    
-    setTimeout(function() {
-      isAnimating = false;
-    }, 250);
+  // Wait until the DOM is fully loaded and parsed
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initHud);
+  } else {
+    initHud(); // Already loaded
   }
-  
-  function closeHud() {
-    if (!profileHud || isAnimating) return;
-    profileHud.style.opacity = '0';
-    profileHud.style.pointerEvents = 'none';
-  }
-  
-  // Attach click handler immediately
-  if (profileBtn) {
-    profileBtn.addEventListener('click', toggleHud, true);
-  }
-  
-  // Close on outside click
-  document.addEventListener('click', function(e) {
+
+  function initHud() {
+    const profileBtn = document.getElementById("profile-btn");
+    const profileHud = document.getElementById("profile-hud");
     if (!profileBtn || !profileHud) return;
-    
-    var isVisible = profileHud.style.opacity === '1';
-    
-    if (isVisible && !profileHud.contains(e.target) && !profileBtn.contains(e.target)) {
-      closeHud();
+
+    let isAnimating = false;
+
+    function toggleHud(e) {
+      e.stopPropagation();
+      if (isAnimating) return;
+      isAnimating = true;
+
+      const isHidden =
+        profileHud.style.opacity === "0" || profileHud.style.opacity === "";
+
+      if (isHidden) {
+        profileHud.style.opacity = "1";
+        profileHud.style.pointerEvents = "auto";
+      } else {
+        profileHud.style.opacity = "0";
+        profileHud.style.pointerEvents = "none";
+      }
+
+      setTimeout(() => (isAnimating = false), 250);
     }
-  }, true);
-  
+
+    function closeHud() {
+      if (isAnimating) return;
+      profileHud.style.opacity = "0";
+      profileHud.style.pointerEvents = "none";
+    }
+
+    // ✅ attach normally (bubble phase)
+    profileBtn.addEventListener("click", toggleHud);
+
+    document.addEventListener("click", (e) => {
+      const isVisible = profileHud.style.opacity === "1";
+      if (
+        isVisible &&
+        !profileHud.contains(e.target) &&
+        !profileBtn.contains(e.target)
+      ) {
+        closeHud();
+      }
+    });
+
+    // Optional smooth transition guarantee
+    profileHud.style.transition = "opacity 0.25s ease";
+  }
 })();
 </script>
