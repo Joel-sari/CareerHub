@@ -1,51 +1,61 @@
-{% extends "base.html" %}
-{% load static %}
-
+{% extends "base.html" %} {% load static %}
+<!-- Page-only styles so we don't affect teammates' pages -->
 {% block title %}Job Map · CareerHub{% endblock %}
-
+<!-- Page-only styles so we don't affect teammates' pages -->
 {% block extra_css %}
-  <!-- Page-only styles so we don't affect teammates' pages -->
-  <link rel="stylesheet" href="{% static 'css/map.css' %}">
+<link rel="stylesheet" href="{% static 'css/map.css' %}" />
 {% endblock %}
-
+<!-- Page-only styles so we don't affect teammates' pages -->
 {% block layout %}
-  <div class="container-fluid p-0">
-    {% block content %}
-      <div class="d-flex map-shell">
-        <!-- Map -->
-        <div id="map" class="flex-grow-1"></div>
+<div class="container-fluid p-0">
+  {% block content %}
+  <div class="d-flex map-shell">
+    <!-- Map -->
+    <div id="map" class="flex-grow-1"></div>
 
-        <!-- Sidebar -->
-        <aside class="map-panel border-start bg-white d-flex flex-column">
-          <div class="panel-head p-3 shadow-1">
-            <div class="d-flex align-items-center justify-content-between">
-              <h2 class="panel-title m-0">Jobs Near You</h2>
-              <span id="resultCount" class="badge-pill">0</span>
-            </div>
-            <p class="muted mt-1 mb-2">Allow location access to see nearby roles.</p>
+    <!-- Sidebar -->
+    <aside class="map-panel border-start bg-white d-flex flex-column">
+      <div class="panel-head p-3 shadow-1">
+        <div class="d-flex align-items-center justify-content-between">
+          <h2 class="panel-title m-0">Jobs Near You</h2>
+          <span id="resultCount" class="badge-pill">0</span>
+        </div>
+        <p class="muted mt-1 mb-2">
+          Allow location access to see nearby roles.
+        </p>
 
-            <div class="form-inline">
-              <select id="radiusSelect" class="form-select form-select-sm" style="width:auto;">
-                <option value="10">10 mi</option>
-                <option value="25">25 mi</option>
-                <option value="50" selected>50 mi</option>
-                <option value="100">100 mi</option>
-              </select>
-              <button id="refreshNearby" class="btn btn-primary btn-slim">Refresh</button>
-            </div>
-          </div>
-
-          <ul id="nearbyList" class="scroll-y list-unstyled m-0"></ul>
-        </aside>
+        <div class="form-inline">
+          <select
+            id="radiusSelect"
+            class="form-select form-select-sm"
+            style="width: auto"
+          >
+            <option value="10">10 mi</option>
+            <option value="25">25 mi</option>
+            <option value="50" selected>50 mi</option>
+            <option value="100">100 mi</option>
+          </select>
+          <button id="refreshNearby" class="btn btn-primary btn-slim">
+            Refresh
+          </button>
+        </div>
       </div>
 
-      <script>
-        window.CAREERHUB = { jobsApiUrl: "{% url 'jobs:jobs_map_api' %}" };
-      </script>
-      <!-- Marker clustering lib -->
-      <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
-      <script src="{% static 'js/map.js' %}" defer></script>
-      <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&libraries=marker"></script>
-    {% endblock %}
+      <ul id="nearbyList" class="scroll-y list-unstyled m-0"></ul>
+    </aside>
   </div>
+
+  <script>
+    window.CAREERHUB = { jobsApiUrl: "{% url 'jobs:jobs_map_api' %}" };
+  </script>
+  <!-- Marker clustering lib -->
+  <script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
+  <script src="{% static 'js/map.js' %}" defer></script>
+  <script
+    async
+    defer
+    src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&libraries=marker"
+  ></script>
+  {% endblock %}
+</div>
 {% endblock %}
