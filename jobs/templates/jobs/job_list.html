@@ -57,11 +57,13 @@
 {% if user.is_authenticated and user.role == 'job_seeker' %}
 <!-- ================= LOCATION TOOLBAR ================= -->
 <div class="flex items-center justify-between mb-8">
+  
+  <!-- Left Side: Find Jobs Near Me + Radius -->
   <div class="flex items-center gap-6">
     <button type="button"
             onclick="getUserLocation()"
-            class="btn-secondary px-10 py-3 text-[17px] font-semibold flex items-center gap-2 min-w-[250px] justify-center">
-       <span>Find Jobs Near Me</span>
+            class="btn-secondary px-8 py-2 text-[16px] font-semibold flex items-center gap-2 min-w-[220px] justify-center">
+      <span>Find Jobs Near Me</span>
     </button>
 
     <label for="radius" class="text-gray-600 text-[15px]">Radius:</label>
@@ -74,6 +76,12 @@
       <option value="50" {% if request.GET.radius == '50' %}selected{% endif %}>50 mi</option>
     </select>
   </div>
+
+  <!-- Right Side: Open Map View -->
+  <a href="{% url 'jobs:job_map' %}"
+     class="btn-secondary px-6 py-2 text-[15px] font-medium rounded-full shadow-sm hover:opacity-90 transition">
+    Open Map View
+  </a>
 </div>
 {% endif %}
 

@@ -1,5 +1,22 @@
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.container-fluid {
+  height: 100%;
+}
+
 /* Layout */
-.map-shell { height: calc(100vh - 56px); }
+.map-shell { display:flex; }
+
+.map-shell > #map {
+  height: calc(100vh - 56px) !important;  /* same as your inline test */
+  width: 100% !important;
+  flex: 1 1 auto;
+  display: block;
+}
 .map-panel { width: 24rem; max-width: 100%; }
 
 /* Panel */
@@ -29,3 +46,11 @@
 .scroll-y { overflow-y:auto; }
 .shadow-1 { box-shadow: 0 1px 2px rgba(0,0,0,.05); }
 .btn-slim { padding:.3rem .6rem; font-size:.8rem; }
+
+
+#map {
+  flex: 1;                      /* fill remaining width */
+  height: 100%;                 /* fill parent height */
+  width: 100%;
+  background: #cfe7ff;          /* temporary blue background for testing */
+}
