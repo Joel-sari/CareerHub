@@ -1,17 +1,18 @@
-{% extends "base.html" %} {% block content %}
+{% extends "base.html" %}
+{% block content %}
 <div class="card rounded shadow p-4 space-y-4">
-  <h2>{{ job.title }}</h2>
+  <h2 class="mb-3">{{ job.title }}</h2>
 
   {% if job.company %}
   <p><strong>Company:</strong> {{ job.company }}</p>
-  {% endif %} {% if job.location %}
+  {% endif %}
+
+  {% if job.location %}
   <p><strong>Location:</strong> {{ job.location }}</p>
   {% endif %}
 
-  <div
-    id="map"
-    style="width: 100%; height: 300px; border-radius: 10px; margin-top: 1rem"
-  ></div>
+  <!-- Map -->
+  <div id="map" style="width: 100%; height: 300px; border-radius: 10px; margin: 1rem 0;"></div>
 
   <p><strong>Type:</strong> {{ job.get_employment_type_display }}</p>
 
@@ -19,8 +20,7 @@
   <p>
     <strong>Salary:</strong>
     {% if job.min_salary %}${{ job.min_salary }}{% endif %}
-    <!--Placeholder-->
-    {% if job.max_salary%} - ${{ job.max_salary }}{% endif %}
+    {% if job.max_salary %} - ${{ job.max_salary }}{% endif %}
   </p>
   {% endif %}
 
@@ -33,34 +33,42 @@
   {% endif %}
 </div>
 
+<!-- ================= RECRUITER ACTIONS ================= -->
 {% if user.is_authenticated and user.role == 'recruiter' %}
-<p>
-  <a href="{% url 'jobs:my_list' %}" class="btn btn-secondary"
-    >← Back to Dashboard</a
-  ><a href="{% url 'jobs:delete_job' job.pk %}" class="btn btn-danger ms-2"
-    >🗑 Delete Job</a
-  >
-</p>
-{% endif %} {% if user.is_authenticated and user.role == 'job_seeker' %}
-<hr />
+<div class="mt-4 d-flex gap-2">
+  <a href="{% url 'jobs:my_list' %}" class="btn btn-secondary">← Back to Job Listings</a>
+  <a href="{% url 'jobs:delete_job' job.pk %}" class="btn btn-danger">🗑 Delete Job</a>
+</div>
+{% endif %}
+
+<!-- ================= JOB SEEKER ACTIONS ================= -->
+{% if user.is_authenticated and user.role == 'job_seeker' %}
+<hr class="my-4" />
+
+<div class="mt-4 mb-4 d-flex gap-2">
+  <a href="{% url 'jobs:job_list' %}" class="btn btn-secondary">← Back to Job Listings</a>
+</div>
+
 {% if applied %}
-<h4 class="text-success">You have already applied for this job. Good Luck!</h4>
+<h4 class="text-success">✅ You have already applied for this job. Good luck!</h4>
 {% else %}
 <h3>Apply for this Job</h3>
-<form method="post" action="{% url 'jobs:apply_job' job.pk %}">
+<form method="post" action="{% url 'jobs:apply_job' job.pk %}" class="mt-2">
   {% csrf_token %}
   <textarea
     name="note"
     rows="3"
-    class="form-control"
+    class="form-control mb-3"
     placeholder="Add a short note (optional)"
   ></textarea>
-  <button type="submit" class="btn btn-primary mt-2">Apply Now</button>
+  <button type="submit" class="btn btn-primary">Apply Now</button>
 </form>
-{% endif %} {% elif not user.is_authenticated %}
+{% endif %}
+{% elif not user.is_authenticated %}
 <p><a href="{% url 'login' %}">Log in</a> to apply for this job.</p>
 {% endif %}
 
+<!-- ================= MAP SCRIPT ================= -->
 <script>
   function initMap() {
     const jobLocation = {
@@ -68,7 +76,6 @@
       lng: {{ job.longitude|default:"null" }}
     };
 
-    // If lat/lng are missing, show fallback message instead of breaking
     if (jobLocation.lat === null || jobLocation.lng === null) {
       document.getElementById("map").innerHTML =
         "<div class='alert alert-warning mt-2'>Map not available for this job (no valid coordinates).</div>";
@@ -87,6 +94,7 @@
     });
   }
 </script>
+
 <script
   async
   defer

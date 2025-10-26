@@ -8,6 +8,8 @@ from django.core.mail import EmailMessage
 from django.conf import settings
 from django import forms
 from django.db import models
+from jobs.models import Job, Application
+
 
 from .forms import SignUpForm, JobSeekerProfileForm, RecruiterProfileForm
 from .models import User, JobSeekerProfile
@@ -59,12 +61,35 @@ class CustomLoginView(LoginView):
 # -------------------------------------------------------
 @login_required
 def jobseeker_dashboard(request):
-    return render(request, "accounts/jobseeker_dashboard.html")
+    user = request.user
+
+    # Jobs the user applied to
+    applications = Application.objects.filter(applicant=user).select_related('job')
+
+    # Recommended jobs (example logic — nearby or unspecific for now)
+    recommended_jobs = Job.objects.exclude(applications__applicant=user)[:3]
+
+    return render(request, "accounts/jobseeker_dashboard.html", {
+        "applications": applications,
+        "recommended_jobs": recommended_jobs,
+    })
 
 
 @login_required
 def recruiter_dashboard(request):
-    return render(request, "accounts/recruiter_dashboard.html")
+    user = request.user
+
+    # Jobs posted by this recruiter
+    jobs = Job.objects.filter(recruiter=user)
+
+    # Applications to this recruiter's jobs
+    applications = Application.objects.filter(job__recruiter=user).select_related("applicant", "job")
+
+    return render(request, "accounts/recruiter_dashboard.html", {
+        "user": user,
+        "jobs": jobs,
+        "applications": applications,
+    })
 
 
 # -------------------------------------------------------
@@ -103,6 +128,16 @@ def recruiter_onboarding(request):
     return render(request, "accounts/recruiter_profile_form.html", {
         "form": form,
         "title": "Complete your Recruiter profile"
+    })
+
+
+@login_required
+def my_applications(request):
+    user = request.user
+    applications = Application.objects.filter(applicant=user).select_related("job")
+
+    return render(request, "accounts/my_applications.html", {
+        "applications": applications,
     })
 
 

@@ -1,215 +1,164 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container mt-4">
 
-  <h2 class="mb-3">Find Your Next Opportunity</h2>
+<!-- ================= HEADER ================= -->
+<div class="flex items-center justify-between mb-8">
+  <h2 class="text-3xl font-semibold text-[#243251]">
+    Find Your Next Opportunity
+  </h2>
 
-<!-- FILTER FORM USER STORY 2-->
-<form method="get" class="mb-3 p-2 border rounded bg-light">
-  <div class="d-flex flex-wrap align-items-center gap-2">
+  {% if user.is_authenticated and user.role == 'recruiter' %}
+    <a href="{% url 'jobs:create' %}" class="btn-primary">
+      + Create Job Listing
+    </a>
+  {% endif %}
+</div>
+
+<!-- ================= FILTER FORM ================= -->
+<form method="get" class="mb-6 p-5 border border-gray-200 rounded-2xl bg-gray-50 shadow-sm">
+  <div class="flex flex-wrap items-center gap-4">
     <!-- Job Title -->
-    <input
-      type="text"
-      name="title"
-      class="form-control form-control-sm"
-      placeholder="Title"
-      value="{{ request.GET.title }}"
-      style="width: 90px;"
-    />
+    <input type="text" name="title" placeholder="Title" value="{{ request.GET.title }}"
+           class="border border-gray-300 rounded-full px-4 py-2 w-28 focus:ring-2 focus:ring-[#42547c] outline-none" />
 
     <!-- Skills -->
-    <input
-      type="text"
-      name="skills"
-      class="form-control form-control-sm"
-      placeholder="Skills"
-      value="{{ request.GET.skills }}"
-      style="width: 90px;"
-    />
+    <input type="text" name="skills" placeholder="Skills" value="{{ request.GET.skills }}"
+           class="border border-gray-300 rounded-full px-4 py-2 w-28 focus:ring-2 focus:ring-[#42547c] outline-none" />
 
     <!-- Salary Range -->
-    <input
-      type="number"
-      name="salary_min"
-      class="form-control form-control-sm"
-      placeholder="Min $"
-      value="{{ request.GET.salary_min }}"
-      style="width: 100px;"
-    />
-    <input
-      type="number"
-      name="salary_max"
-      class="form-control form-control-sm"
-      placeholder="Max $"
-      value="{{ request.GET.salary_max }}"
-      style="width: 100px;"
-    />
+    <input type="number" name="salary_min" placeholder="Min $" value="{{ request.GET.salary_min }}"
+           class="border border-gray-300 rounded-full px-4 py-2 w-32 focus:ring-2 focus:ring-[#42547c] outline-none" />
+    <input type="number" name="salary_max" placeholder="Max $" value="{{ request.GET.salary_max }}"
+           class="border border-gray-300 rounded-full px-4 py-2 w-32 focus:ring-2 focus:ring-[#42547c] outline-none" />
 
     <!-- Work Type -->
-    <select
-      name="remote"
-      class="form-select form-select-sm"
-      style="width: 90px;"
-    >
+    <select name="remote"
+            class="border border-gray-300 rounded-full px-3 py-2 w-28 focus:ring-2 focus:ring-[#42547c] outline-none">
       <option value="">Any</option>
       <option value="true" {% if request.GET.remote == 'true' %}selected{% endif %}>Remote</option>
       <option value="false" {% if request.GET.remote == 'false' %}selected{% endif %}>On-site</option>
     </select>
 
     <!-- Visa Sponsorship -->
-    <select
-      name="visa"
-      class="form-select form-select-sm"
-      style="width: 90px;"
-    >
+    <select name="visa"
+            class="border border-gray-300 rounded-full px-3 py-2 w-28 focus:ring-2 focus:ring-[#42547c] outline-none">
       <option value="">Any</option>
       <option value="true" {% if request.GET.visa == 'true' %}selected{% endif %}>Visa</option>
       <option value="false" {% if request.GET.visa == 'false' %}selected{% endif %}>No Visa</option>
     </select>
 
-    <!-- Submit Button -->
-    <button
-      type="submit"
-      class="btn"
-      style="
-        background-color: #d4af37;
-        color: #2c3e50;       /* dark navy/charcoal text */
-        font-weight: 600;
-        border: none;
-        border-radius: 9999px;
-        padding: 6px 16px;
-        height: 38px;
-      "
-    >
-      <i class="bi bi-search me-1"></i> Search
+    <!-- Search Button -->
+    <button type="submit" class="btn-primary text-[16px] px-6 py-2">
+      🔍 Search
     </button>
-
-
   </div>
 </form>
 
+{% if user.is_authenticated and user.role == 'job_seeker' %}
+<!-- ================= LOCATION TOOLBAR ================= -->
+<div class="flex items-center justify-between mb-8">
+  <div class="flex items-center gap-6">
+    <button type="button"
+            onclick="getUserLocation()"
+            class="btn-secondary px-10 py-3 text-[17px] font-semibold flex items-center gap-2 min-w-[250px] justify-center">
+       <span>Find Jobs Near Me</span>
+    </button>
 
-
-  {% if user.is_authenticated and user.role == 'job_seeker' %}
-  <!-- LOCATION TOOLBAR -->
-  <div class="d-flex align-items-center justify-content-between mb-4">
-    <div>
-      <button class="btn btn-primary me-3" onclick="getUserLocation()">
-        <i class="bi bi-geo-alt-fill"></i> Find Jobs Near Me
-      </button>
-
-      <label for="radius" class="form-label me-2">Radius:</label>
-      <select id="radius" class="form-select d-inline-block w-auto" onchange="getUserLocation()">
-        <option value="5" {% if request.GET.radius == '5' %}selected{% endif %}>5 mi</option>
-        <option value="10" {% if request.GET.radius == '10' or not request.GET.radius %}selected{% endif %}>10 mi</option>
-        <option value="25" {% if request.GET.radius == '25' %}selected{% endif %}>25 mi</option>
-        <option value="50" {% if request.GET.radius == '50' %}selected{% endif %}>50 mi</option>
-      </select>
-    </div>
-
-    <div id="radius-info"></div>
+    <label for="radius" class="text-gray-600 text-[15px]">Radius:</label>
+    <select id="radius"
+            onchange="getUserLocation()"
+            class="border border-gray-300 rounded-full px-4 py-2 text-[15px] focus:ring-2 focus:ring-[#42547c] outline-none">
+      <option value="5" {% if request.GET.radius == '5' %}selected{% endif %}>5 mi</option>
+      <option value="10" {% if request.GET.radius == '10' or not request.GET.radius %}selected{% endif %}>10 mi</option>
+      <option value="25" {% if request.GET.radius == '25' %}selected{% endif %}>25 mi</option>
+      <option value="50" {% if request.GET.radius == '50' %}selected{% endif %}>50 mi</option>
+    </select>
   </div>
+</div>
+{% endif %}
 
-  {% endif %}
-
-  <!-- ========================= -->
-  <!-- NEARBY JOBS SECTION -->
-  <!-- ========================= -->
-  <div class="mb-5">
-    <h4 class="text-primary mb-3">Jobs Near You</h4>
+<!-- ================= JOB SECTIONS ================= -->
+<div class="space-y-12">
+  <!-- Nearby Jobs -->
+  <section>
+    <h3 class="text-xl font-semibold text-[#243251] mb-4">Jobs Near You</h3>
 
     {% if nearby_jobs %}
-      <div class="row row-cols-1 row-cols-md-2 g-4">
-        {% for job in nearby_jobs %}
-        <div class="col">
-          <div class="card shadow-sm h-100">
-            <div class="card-body">
-              <h5 class="card-title">
-                <a href="{% url 'jobs:job_detail' job.pk %}" class="text-decoration-none">
-                  {{ job.title }}
-                </a>
-              </h5>
-              <p class="card-text text-muted mb-1">{{ job.company }} — {{ job.location }}</p>
-              <p class="small mb-2 text-secondary">{{ job.distance_miles }} miles away</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {% for job in nearby_jobs %}
+      <div class="border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition bg-white">
+        <h4 class="text-lg font-semibold text-[#243251]">
+          <a href="{% url 'jobs:job_detail' job.pk %}" class="hover:underline">{{ job.title }}</a>
+        </h4>
+        <p class="text-gray-600">{{ job.company }} — {{ job.location }}</p>
+        <p class="text-sm text-gray-500 mb-2">{{ job.distance_miles }} miles away</p>
 
-              {% if user.is_authenticated and user.role == 'job_seeker' %}
-                {% if job.applied %}
-                <span class="badge bg-success">✓ Already Applied</span>
-                {% else %}
-                <a href="{% url 'jobs:apply_job' job.pk %}" class="btn btn-sm btn-outline-primary">Apply</a>
-                {% endif %}
-              {% endif %}
-            </div>
-          </div>
-        </div>
-        {% endfor %}
+        {% if user.role == 'job_seeker' %}
+          {% if job.applied %}
+            <span class="text-green-600 text-sm font-medium">✓ Already Applied</span>
+          {% else %}
+            <a href="{% url 'jobs:apply_job' job.pk %}" class="btn-primary text-[15px] px-6 py-2 mt-2 inline-block">
+              Apply
+            </a>
+          {% endif %}
+        {% endif %}
       </div>
+      {% endfor %}
+    </div>
     {% else %}
-      <div class="alert alert-secondary mt-3">
-        <i class="bi bi-geo-alt"></i> No jobs found within your selected radius.
-      </div>
+    <p class="text-gray-500 mt-2">No jobs found within your selected radius.</p>
     {% endif %}
-  </div>
+  </section>
 
-  <!-- ========================= -->
-  <!-- ALL JOBS SECTION -->
-  <!-- ========================= -->
-  <div>
-    <h4 class="text-dark mb-3">All Available Jobs</h4>
+  <!-- All Jobs -->
+  <section>
+    <h3 class="text-xl font-semibold text-[#243251] mb-4">All Available Jobs</h3>
 
     {% if all_jobs %}
-      <div class="row row-cols-1 row-cols-md-2 g-4">
-        {% for job in all_jobs %}
-        <div class="col">
-          <div class="card shadow-sm h-100">
-            <div class="card-body">
-              <h5 class="card-title">
-                <a href="{% url 'jobs:job_detail' job.pk %}" class="text-decoration-none">
-                  {{ job.title }}
-                </a>
-              </h5>
-              <p class="card-text text-muted mb-1">{{ job.company }} — {{ job.location }}</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {% for job in all_jobs %}
+      <div class="border border-gray-200 rounded-2xl p-6 shadow-sm hover:shadow-md transition bg-white">
+        <h4 class="text-lg font-semibold text-[#243251]">
+          <a href="{% url 'jobs:job_detail' job.pk %}" class="hover:underline">{{ job.title }}</a>
+        </h4>
+        <p class="text-gray-600">{{ job.company }} — {{ job.location }}</p>
 
-              {% if user.is_authenticated and user.role == 'job_seeker' %}
-                {% if job.applied %}
-                <span class="badge bg-success">✓ Already Applied</span>
-                {% else %}
-                <a href="{% url 'jobs:apply_job' job.pk %}" class="btn btn-sm btn-outline-primary">Apply</a>
-                {% endif %}
-              {% endif %}
-            </div>
-          </div>
-        </div>
-        {% endfor %}
+        {% if user.role == 'job_seeker' %}
+          {% if job.applied %}
+            <span class="text-green-600 text-sm font-medium">✓ Already Applied</span>
+          {% else %}
+            <a href="{% url 'jobs:apply_job' job.pk %}" class="btn-primary text-[15px] px-6 py-2 mt-2 inline-block">
+              Apply
+            </a>
+          {% endif %}
+        {% endif %}
       </div>
+      {% endfor %}
+    </div>
     {% else %}
-      <p class="text-muted">No available job postings right now.</p>
+    <p class="text-gray-500">No available job postings right now.</p>
     {% endif %}
-  </div>
+  </section>
 </div>
 
 <script>
   function getUserLocation() {
-    const radiusSelect = document.getElementById("radius");
-    const radius = radiusSelect ? radiusSelect.value : 10;
-
+    const radius = document.getElementById("radius").value || 10;
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const lat = position.coords.latitude;
-          const lng = position.coords.longitude;
+        (pos) => {
+          const lat = pos.coords.latitude;
+          const lng = pos.coords.longitude;
           const baseUrl = window.location.pathname;
           const params = new URLSearchParams({ lat, lng, radius });
           window.location.href = `${baseUrl}?${params.toString()}`;
         },
-        (error) => {
-          console.error("Geolocation error:", error);
-          alert("Unable to retrieve your location. Please allow location access or try again.");
-        }
+        () => alert("Unable to retrieve your location.")
       );
     } else {
-      alert("Geolocation is not supported by this browser.");
+      alert("Geolocation not supported in this browser.");
     }
   }
 </script>
+
 {% endblock %}

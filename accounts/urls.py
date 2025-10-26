@@ -60,4 +60,7 @@ urlpatterns = [
     path("admin/users/", views.admin_user_list, name="admin_user_list"),
     path("admin/export-users-csv/", views.export_users_csv, name="export_users_csv"),
 
+
+    path("applications/", views.my_applications, name="my_applications"),
+
 ]

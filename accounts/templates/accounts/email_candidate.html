@@ -1,10 +1,27 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Email {{ candidate.username }}</h2>
 
-<form method="post">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Send Email</button>
-</form>
+<div class="min-h-screen bg-white px-10 py-10 flex justify-center">
+  <div class="w-full max-w-[700px] bg-gray-50 rounded-2xl p-10 border border-gray-200 shadow-md">
+    <h2 class="text-3xl font-semibold text-[#243251] mb-6">
+      Email {{ candidate.username }}
+    </h2>
+
+    <form method="post" class="space-y-5">
+      {% csrf_token %}
+      {{ form.as_p }}
+
+      <div class="flex justify-between mt-6">
+        <a href="{% url 'candidate_profile' candidate.id %}"
+           class="btn-secondary text-[16px] px-8 py-2">
+          ← Back to Profile
+        </a>
+        <button type="submit" class="btn-primary text-[16px] px-8 py-2">
+          Send Email
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
 {% endblock %}

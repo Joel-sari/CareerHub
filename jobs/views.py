@@ -230,3 +230,39 @@ def jobs_map_api(request):
         "detailUrl": j.get_absolute_url() if hasattr(j, "get_absolute_url") else f"/jobs/{j.id}/",
     } for j in qs]
     return JsonResponse({"jobs": data})
+
+# ===============================================================
+# Job Seeker Dashboard
+# ===============================================================
+@login_required
+def jobseeker_dashboard(request):
+    """Displays personalized job recommendations and application status for the logged-in job seeker."""
+    user = request.user
+
+    # Restrict to job seekers only
+    if getattr(user, "role", None) != User.JOB_SEEKER:
+        raise PermissionDenied("Only job seekers can access this dashboard.")
+
+    # Recent applications (latest 5)
+    applications = (
+        Application.objects
+        .filter(applicant=user)
+        .select_related("job")
+        .order_by("-created_at")[:5]
+    )
+
+    # Simple recommendation: nearest jobs or recent active jobs
+    recommended_jobs = Job.objects.filter(is_active=True).order_by("-created_at")[:3]
+
+    # Optional: If you later store location in user profile, you can compute actual nearby jobs:
+    # if user.profile.latitude and user.profile.longitude:
+    #     recommended_jobs = Job.objects.filter(is_active=True)[:3]
+    #     # (Apply haversine_distance filtering similar to job_list)
+
+    context = {
+        "user": user,
+        "recommended_jobs": recommended_jobs,
+        "applications": applications,
+    }
+
+    return render(request, "jobs/jobseeker_dashboard.html", context)

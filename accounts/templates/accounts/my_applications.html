@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="min-h-screen bg-white px-20 py-12">
+  <h2 class="text-3xl font-semibold text-[#243251] mb-8">My Applications</h2>
+
+  {% if applications %}
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    {% for app in applications %}
+    <div class="p-6 border border-gray-200 rounded-[30px] shadow-sm hover:shadow-md transition bg-white">
+      <h3 class="text-xl font-semibold text-[#243251]">{{ app.job.title }}</h3>
+      <p class="text-gray-600 mb-1">{{ app.job.company_name }}</p>
+      <p class="text-gray-500 mb-3">{{ app.job.location }}</p>
+
+      <span class="text-sm font-medium
+        {% if app.status == 'accepted' %}text-green-600
+        {% elif app.status == 'in_review' %}text-yellow-600
+        {% else %}text-blue-600{% endif %}">
+        {{ app.status|title }}
+      </span>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="text-gray-500">You haven’t applied to any jobs yet.</p>
+  {% endif %}
+</div>
+
+{% endblock %}

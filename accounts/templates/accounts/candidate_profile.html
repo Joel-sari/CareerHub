@@ -1,12 +1,31 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>{{ candidate.username }}'s Profile</h2>
 
-<p><strong>Email:</strong> {{ candidate.email }}</p>
-<p><strong>Headline:</strong> {{ candidate.jobseeker.headline }}</p>
-<p><strong>Skills:</strong> {{ candidate.jobseeker.skills }}</p>
-<p><strong>Education:</strong> {{ candidate.jobseeker.education }}</p>
-<p><strong>Work Experience:</strong> {{ candidate.jobseeker.work_experience }}</p>
+<div class="min-h-screen bg-white px-10 py-10">
+  <div class="max-w-[900px] mx-auto bg-gray-50 rounded-2xl shadow-md p-10 border border-gray-200">
+    <h2 class="text-3xl font-semibold text-[#243251] mb-6">
+      {{ candidate.username }}’s Profile
+    </h2>
 
-<a href="{% url 'email_candidate' candidate.id %}" class="btn">Email Candidate</a>
+    <div class="space-y-3 text-gray-700">
+      <p><strong>Email:</strong> {{ candidate.email }}</p>
+      <p><strong>Headline:</strong> {{ candidate.jobseeker.headline|default:"—" }}</p>
+      <p><strong>Skills:</strong> {{ candidate.jobseeker.skills|default:"—" }}</p>
+      <p><strong>Education:</strong> {{ candidate.jobseeker.education|default:"—" }}</p>
+      <p><strong>Work Experience:</strong> {{ candidate.jobseeker.work_experience|default:"—" }}</p>
+    </div>
+
+    <div class="mt-8 flex gap-4">
+      <a href="{% url 'email_candidate' candidate.id %}"
+         class="btn-primary text-[16px] px-8 py-2">
+         Email Candidate
+      </a>
+      <a href="{% url 'candidate_list' %}"
+         class="btn-secondary text-[16px] px-8 py-2">
+        ← Back to Directory
+      </a>
+    </div>
+  </div>
+</div>
+
 {% endblock %}

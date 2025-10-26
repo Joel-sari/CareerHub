@@ -14,4 +14,6 @@ urlpatterns = [
     path("delete/<int:pk>/", views.delete_job, name="delete_job"),
     path("map/", views.job_map, name="job_map"),
     path("api/jobs-map/", views.jobs_map_api, name="jobs_map_api"),
+    path("dashboard/", views.jobseeker_dashboard, name="jobseeker_dashboard"),
+
 ]
