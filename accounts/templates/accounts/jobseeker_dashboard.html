@@ -2,8 +2,6 @@
 {% block content %}
 <h2>Job Seeker Dashboard</h2>
 <p>Welcome, {{ user.username }}! 🎉</p>
-<p>Here you’ll see your latest notifications, messages, and job updates.</p>
-
 <hr>
 <a href="{% url 'jobs:job_list' %}" class="btn btn-primary">Browse Available Jobs</a>
 

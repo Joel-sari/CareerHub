@@ -1,6 +1,6 @@
 <!-- templates/components/profile_hud.html -->
 <div id="profile-hud"
-     class="hidden absolute right-6 bottom-[50px] w-80 bg-white border border-[#2b3853]/50
+     class="hidden absolute right-0 top-full mt-2 w-80 bg-white border border-[#2b3853]/50
             rounded-xl shadow-lg p-5 z-50">
   <!-- User Info -->
   <div class="flex items-center gap-4 mb-4">
@@ -30,7 +30,6 @@
           View Jobs
         </a>
       </li>
-
     {% elif user.role == 'recruiter' %}
       <li>
         <a href="{% url 'recruiter_onboarding' %}"
@@ -45,7 +44,6 @@
         </a>
       </li>
     {% endif %}
-
     <li class="block font-medium text-gray-400 cursor-not-allowed">Notifications</li>
   </ul>
 
@@ -55,7 +53,7 @@
   <form method="post" action="{% url 'logout' %}">
     {% csrf_token %}
     <button type="submit"
-            class="block w-full text-left text-red-600 font-semibold hover:text-red-700 transition-colors">
+            class="block w-full text-left text-red-600 font-semibold hover:text-black-700 transition-colors">
       Log Out
     </button>
   </form>

@@ -1,44 +1,145 @@
 {% load static %}
 <!-- templates/components/navbar.html -->
-<nav class="w-full h-[60px] flex items-center justify-between bg-[#42547b] px-6 shadow-md">
+<nav class="w-full h-[60px] flex items-center justify-between bg-[#42547b] px-6 shadow-md z-50">
   <!-- Left: Logo -->
   <div class="flex items-center gap-1">
-    <span class="ml-2 bg-gradient-to-b from-[#EFCE63] to-[#BD9B2E] bg-clip-text text-transparent font-bold text-xl tracking-tight">Career</span>
-    <span class="ml-1 bg-gradient-to-b from-white to-[#A6A6A6] bg-clip-text text-transparent font-bold text-xl tracking-tight">Hub</span>
+    <span class="ml-2 bg-gradient-to-b from-[#EFCE63] to-[#BD9B2E] bg-clip-text text-transparent font-bold text-xl tracking-tight">
+      Career
+    </span>
+    <span class="ml-1 bg-gradient-to-b from-white to-[#A6A6A6] bg-clip-text text-transparent font-bold text-xl tracking-tight">
+      Hub
+    </span>
   </div>
 
   <!-- Right: Icons -->
-  <div class="flex items-center gap-6">
-    <!-- Dashboard icon (links to dashboard) -->
+  <div class="flex items-center gap-6 relative">
     {% if user.role == 'job_seeker' %}
-  <a href="{% url 'jobseeker_dashboard' %}" aria-label="Job Seeker Dashboard"
-     class="w-6 h-6 opacity-80 hover:opacity-100 transition-opacity">
-    <img src="{% static 'images/icon_dashboard.png' %}" alt="Dashboard" class="w-full h-full">
-  </a>
-{% elif user.role == 'recruiter' %}
-  <a href="{% url 'recruiter_dashboard' %}" aria-label="Recruiter Dashboard"
-     class="w-6 h-6 opacity-80 hover:opacity-100 transition-opacity">
-    <img src="{% static 'images/icon_dashboard.png' %}" alt="Dashboard" class="w-full h-full">
-  </a>
-{% endif %}
+      <a href="{% url 'jobseeker_dashboard' %}" aria-label="Job Seeker Dashboard"
+         class="w-6 h-6 opacity-80 hover:opacity-100 transition-opacity">
+        <img src="{% static 'images/icon_dashboard.png' %}" alt="Dashboard" class="w-full h-full">
+      </a>
+    {% elif user.role == 'recruiter' %}
+      <a href="{% url 'recruiter_dashboard' %}" aria-label="Recruiter Dashboard"
+         class="w-6 h-6 opacity-80 hover:opacity-100 transition-opacity">
+        <img src="{% static 'images/icon_dashboard.png' %}" alt="Dashboard" class="w-full h-full">
+      </a>
+    {% endif %}
 
-
-    <!-- Notifications icon -->
     <button aria-label="Notifications"
             class="w-6 h-6 opacity-80 hover:opacity-100 transition-opacity">
       <img src="{% static 'images/icon_notifications.png' %}" alt="Notifications" class="w-full h-full">
     </button>
 
-    <!-- Profile dropdown -->
+    <!-- Profile Button -->
     <div class="relative">
-      <!-- Profile Button -->
       <button id="profile-btn"
-              class="w-8 h-8 rounded-full bg-[#d9d9d9] overflow-hidden border-2 border-[#efce63] hover:ring-2 hover:ring-[#efce63] transition-all">
+              type="button"
+              class="w-8 h-8 rounded-full bg-[#d9d9d9] overflow-hidden border-2 border-[#efce63]
+                     hover:ring-2 hover:ring-[#efce63] transition-all">
         <img src="{% static 'images/icon_profile.png' %}" alt="User" class="w-full h-full object-cover">
       </button>
-        {% include 'components/profile_hud.html' %}
-
-      <!-- Include HUD dropdown -->
     </div>
   </div>
 </nav>
+
+<!-- Profile HUD (dropdown) -->
+<div id="profile-hud"
+     style="opacity: 0; pointer-events: none;"
+     class="fixed top-[70px] right-6 w-80 bg-white border border-[#2b3853]/40
+            rounded-lg shadow-xl p-5 z-[999999] transition-opacity duration-200">
+  <!-- User Info -->
+  <div class="flex items-center gap-4 mb-4">
+    <div class="w-12 h-12 bg-gray-300 rounded-full"></div>
+    <div>
+      <p class="font-bold text-base text-[#233250]">
+        {{ user.get_full_name|default:user.username }}
+      </p>
+      <p class="text-sm text-gray-600">{{ user.email }}</p>
+    </div>
+  </div>
+
+  <hr class="my-3 border-gray-300/40">
+
+  <!-- Role-based Links -->
+  <ul class="space-y-2">
+    {% if user.role == 'job_seeker' %}
+      <li><a href="{% url 'jobseeker_onboarding' %}" class="block font-medium text-[#233250] hover:text-[#42547b] transition-colors">Edit Profile</a></li>
+      <li><a href="{% url 'jobs:job_list' %}" class="block font-medium text-[#233250] hover:text-[#42547b] transition-colors">View Jobs</a></li>
+    {% elif user.role == 'recruiter' %}
+      <li><a href="{% url 'recruiter_onboarding' %}" class="block font-medium text-[#233250] hover:text-[#42547b] transition-colors">Edit Profile</a></li>
+      <li><a href="{% url 'jobs:my_list' %}" class="block font-medium text-[#233250] hover:text-[#42547b] transition-colors">My Job Listings</a></li>
+    {% endif %}
+    <li class="block font-medium text-gray-400 cursor-not-allowed">Notifications</li>
+  </ul>
+
+  <hr class="my-3 border-gray-300/40">
+
+  <!-- Logout -->
+  <form method="post" action="{% url 'logout' %}">
+    {% csrf_token %}
+    <button type="submit"
+            class="block w-full text-left text-red-600 font-semibold hover:text-red-700 transition-colors">
+      Log Out
+    </button>
+  </form>
+</div>
+
+<!-- JS - Inline style ensures immediate availability -->
+<script>
+(function() {
+  'use strict';
+  
+  var profileBtn = document.getElementById('profile-btn');
+  var profileHud = document.getElementById('profile-hud');
+  var isAnimating = false;
+  
+  function toggleHud(e) {
+    if (e) {
+      e.stopPropagation();
+      e.preventDefault();
+    }
+    
+    if (!profileHud || isAnimating) return;
+    
+    isAnimating = true;
+    
+    var currentOpacity = profileHud.style.opacity;
+    var isHidden = currentOpacity === '0' || currentOpacity === '';
+    
+    if (isHidden) {
+      profileHud.style.opacity = '1';
+      profileHud.style.pointerEvents = 'auto';
+    } else {
+      profileHud.style.opacity = '0';
+      profileHud.style.pointerEvents = 'none';
+    }
+    
+    setTimeout(function() {
+      isAnimating = false;
+    }, 250);
+  }
+  
+  function closeHud() {
+    if (!profileHud || isAnimating) return;
+    profileHud.style.opacity = '0';
+    profileHud.style.pointerEvents = 'none';
+  }
+  
+  // Attach click handler immediately
+  if (profileBtn) {
+    profileBtn.addEventListener('click', toggleHud, true);
+  }
+  
+  // Close on outside click
+  document.addEventListener('click', function(e) {
+    if (!profileBtn || !profileHud) return;
+    
+    var isVisible = profileHud.style.opacity === '1';
+    
+    if (isVisible && !profileHud.contains(e.target) && !profileBtn.contains(e.target)) {
+      closeHud();
+    }
+  }, true);
+  
+})();
+</script>
