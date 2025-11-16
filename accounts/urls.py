@@ -38,6 +38,7 @@ urlpatterns = [
     # Job Seeker features
     path("jobseeker/search-jobs/", views.search_jobs_placeholder, name="search_jobs"),  # TODO: implement view
 
+    path("applicants_recruiter_view/", views.recruiter_applicants_kanban, name="applicant_kanban"),
 
     # ---------------------------------------------------
     # ONBOARDING ROUTES
