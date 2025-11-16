@@ -166,7 +166,43 @@ def recruiter_applicants_kanban(request):
     if request.user.role != User.RECRUITER:
         return HttpResponseForbidden("Only recruiters can view this page.")
 
-    return render(request, "accounts/applicants_recruiter_view.html")
+    applications = Application.objects.filter(
+        job__recruiter=request.user
+    ).select_related("applicant", "job")
+
+    backlog = applications.filter(status="applied")
+    review = applications.filter(status="review")
+    Closed = applications.filter(status="closed")
+    Hired = applications.filter(status="hired")
+
+    return render(request, "accounts/applicants_recruiter_view.html", {
+        "backlog": backlog,
+        "review": review,
+        "Closed": Closed,
+        "Hired": Hired,
+    })
+
+
+@login_required
+def update_application_status(request, app_id):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=400)
+
+    app = get_object_or_404(Application, id=app_id)
+
+    # Ensure only the recruiter who owns this job can modify it
+    if app.job.recruiter != request.user:
+        return JsonResponse({"error": "Unauthorized"}, status=403)
+
+    new_status = request.POST.get("status")
+
+    if new_status not in ["applied", "review", "hired", "closed"]:
+        return JsonResponse({"error": "Invalid status"}, status=400)
+
+    app.status = new_status
+    app.save()
+
+    return JsonResponse({"success": True})
 
 # Candidate List (Recruiter only)
 @login_required
@@ -202,12 +238,6 @@ def candidate_list(request):
         )
 
     # --- RENDER TEMPLATE ---
-    return render(request, "accounts/candidate_list.html", {
-        "candidates": candidates,
-    })
-
-    # ==============================
-
     return render(request, "accounts/candidate_list.html", {
         "candidates": candidates,
     })
