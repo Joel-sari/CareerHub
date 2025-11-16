@@ -27,6 +27,9 @@ urlpatterns = [
     # Recruiter dashboard → shown after login/onboarding
     path("dashboard/recruiter/", views.recruiter_dashboard, name="recruiter_dashboard"),
 
+    # Recruiter manage applicant kanban page
+    path("dashboard/recruiter/manage_applicants", views.recruiter_applicants_kanban, name="applicant_kanban"),
+    path("recruiter/applicant/<int:app_id>/update-status/", views.update_application_status, name="update_application_status"),
 
     # ---------------------------------------------------
     # PLACEHOLDER ROUTES (for future features)

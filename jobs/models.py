@@ -192,14 +192,14 @@ class Application(models.Model):
     note = models.TextField(blank=True)
     status = models.CharField(
         max_length=20,
-        choices=[
-            ("Applied", "Applied"),
-            ("Review", "Under Review"),
-            ("Interview", "Interview"),
-            ("Hired", "Hired"),
-            ("Closed", "Closed"),
-        ],
-        default="Applied",
+          choices=[
+        ("applied", "Applied"),
+        ("review", "Under Review"),
+        ("interview", "Interview"),
+        ("hired", "Hired"),
+        ("closed", "Closed"),
+    ],
+    default="applied",
     )
     applied_at = models.DateTimeField(auto_now_add=True)
 

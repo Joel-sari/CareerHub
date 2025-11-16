@@ -266,3 +266,40 @@ def jobseeker_dashboard(request):
     }
 
     return render(request, "jobs/jobseeker_dashboard.html", context)
+
+
+# ===============================================================
+# Applicant View Kanban
+# ===============================================================
+
+@login_required
+def recruiter_applicants_kanban(request):
+    if request.user.role != User.RECRUITER:
+        return HttpResponseForbidden("Only recruiters can view this page.")
+
+    applications = Application.objects.filter(job__recruiter=request.user).select_related("applicant", "job")
+
+    return render(request, "accounts/applicants_recruiter_view.html", {
+        "applications": applications,
+    })
+
+
+@login_required
+def update_application_status(request, app_id):
+    if request.method != "POST":
+        return JsonResponse({"error": "POST only"}, status=400)
+
+    app = get_object_or_404(Application, id=app_id)
+
+    if app.job.recruiter != request.user:
+        return JsonResponse({"error": "Not allowed"}, status=403)
+
+    new_status = request.POST.get("status")
+
+    if new_status not in ["applied", "under_review", "interview", "hired"]:
+        return JsonResponse({"error": "Invalid status"}, status=400)
+
+    app.status = new_status
+    app.save()
+
+    return JsonResponse({"success": True})
