@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="min-h-screen flex flex-col items-center justify-center text-center px-10 py-20">
+  <h1 class="text-3xl font-semibold text-[#243251] mb-4">Applicants Kanban</h1>
+  <p class="text-gray-500 mb-8">This page is a work in progress.</p>
+
+  <div class="mt-6">
+    <a href="{% url 'recruiter_dashboard' %}"
+       class="bg-[#42547c] text-white px-6 py-2 rounded-full hover:bg-[#2b3853] transition">
+      Return to Dashboard
+    </a>
+  </div>
+</div>
+
+{% endblock %}

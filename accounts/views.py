@@ -161,6 +161,13 @@ def search_jobs_placeholder(request):
 # Recruiter → Candidate Features
 # -------------------------------------------------------
 
+@login_required
+def recruiter_applicants_kanban(request):
+    if request.user.role != User.RECRUITER:
+        return HttpResponseForbidden("Only recruiters can view this page.")
+
+    return render(request, "accounts/applicants_recruiter_view.html")
+
 # Candidate List (Recruiter only)
 @login_required
 def candidate_list(request):
