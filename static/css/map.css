@@ -54,3 +54,25 @@ html, body {
   width: 100%;
   background: #cfe7ff;          /* temporary blue background for testing */
 }
+
+/* --- Recruiter map extras --- */
+.map-legend {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.legend-icon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  margin-right: 0.35rem;
+}
+
+.legend-job {
+  background: #facc15; /* yellow-ish */
+}
+
+.legend-applicant {
+  background: #1d4ed8; /* blue-ish */
+}

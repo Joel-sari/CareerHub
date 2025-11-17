@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}My Job Map · CareerHub{% endblock %}
+
+{% block extra_css %}
+  <!-- Re-use the same map styling as the job seeker page -->
+  <link rel="stylesheet" href="{% static 'css/map.css' %}" />
+{% endblock %}
+
+{% block layout %}
+<div class="container-fluid p-0">
+  {% block content %}
+  <div class="d-flex map-shell">
+    <!-- MAP -->
+    <div id="map" class="flex-grow-1"></div>
+
+    <!-- SIDEBAR (similar to job_map sidebar) -->
+    <aside class="map-panel border-start bg-white d-flex flex-column">
+      <div class="panel-head p-3 shadow-1">
+        <div class="d-flex align-items-center justify-content-between">
+          <h2 class="panel-title m-0">My Job Map</h2>
+        </div>
+
+        <p class="muted mt-1 mb-2">
+          Visualize your postings and where applicants are concentrating.
+        </p>
+
+        <!-- Toggle buttons -->
+        <div class="mb-2">
+          <button id="btn-job-locations" class="btn btn-primary btn-slim me-2">
+            Job Locations
+          </button>
+          <button id="btn-applicant-focus" class="btn btn-outline-primary btn-slim">
+            Applicant Focus
+          </button>
+        </div>
+
+        <p class="small mb-1">
+          <strong>Job Locations</strong>: pins for all your live roles.<br />
+          <strong>Applicant Focus</strong>: same pins, sized by applicant volume.
+        </p>
+
+        <div class="d-flex align-items-center small mt-2">
+          <span
+            style="display:inline-block;width:10px;height:10px;border-radius:999px;background:#2563eb;margin-right:4px;"
+          ></span>
+          Job posting
+          <span
+            style="display:inline-block;width:10px;height:10px;border-radius:999px;background:#f97316;margin-left:16px;margin-right:4px;"
+          ></span>
+          Higher applicant interest
+        </div>
+      </div>
+
+      <!-- List of your jobs (with links) -->
+      <ul id="jobList" class="scroll-y list-unstyled m-0 flex-grow-1"></ul>
+
+      <div class="p-3 border-top">
+        <a href="{% url 'recruiter_dashboard' %}" class="link-primary small">
+          ← Back to Recruiter Dashboard
+        </a>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Inline config object (NO JSON.parse in JS) -->
+  <script>
+    window.CAREERHUB_RECRUITER = {
+      jobs: {{ jobs_json|safe }},
+      applicants: {{ applicants_json|safe }}
+    };
+  </script>
+
+  <!-- Our JS -->
+  <script src="{% static 'js/recruiter_map.js' %}" defer></script>
+  <script
+    async
+    defer
+    src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_MAPS_API_KEY }}&libraries=marker"
+  ></script>
+  {% endblock %}
+</div>
+{% endblock %}

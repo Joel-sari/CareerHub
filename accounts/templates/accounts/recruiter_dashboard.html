@@ -84,8 +84,14 @@
 </div>
     <!-- ================= RIGHT: Job Listings ================= -->
     <div>
-      <!-- Section Heading -->
-      <h2 class="text-2xl font-semibold text-[#243251] mb-6">My Job Listings</h2>
+      <!-- Section Heading + Map Link -->
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-semibold text-[#243251]">My Job Listings</h2>
+        <a href="{% url 'jobs:recruiter_map' %}"
+           class="text-sm text-[#42547c] underline hover:text-[#2b3853]">
+          View on Map
+        </a>
+      </div>
 
       <!-- Job Cards -->
       <div class="flex flex-col gap-6 items-center">

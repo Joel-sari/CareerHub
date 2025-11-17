@@ -3,14 +3,16 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.conf import settings
+from django.db.models import Count
 import math
+import json
 
 from .models import Job, Application
 from accounts.models import User
 from .forms import JobForm
 from .decorators import recruiter_required
 
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseForbidden
 
 
 # ===============================================================
@@ -230,6 +232,116 @@ def jobs_map_api(request):
         "detailUrl": j.get_absolute_url() if hasattr(j, "get_absolute_url") else f"/jobs/{j.id}/",
     } for j in qs]
     return JsonResponse({"jobs": data})
+
+# ===============================================================
+# Recruiter Map View (My Jobs + Applicant Counts)
+# ===============================================================
+@login_required
+@recruiter_required
+def recruiter_map(request):
+    """
+    Map for recruiters:
+    - Mode 1: marker for each job posting
+    - Mode 2: same markers but with applicant counts
+    """
+    user = request.user
+
+    # 1) Jobs belonging to this recruiter that have coordinates
+    jobs_qs = (
+        Job.objects
+        .filter(recruiter=user, is_active=True)
+        .exclude(latitude__isnull=True)
+        .exclude(longitude__isnull=True)
+    )
+
+    # 2) Mode 1 data → plain job pins
+    job_pins = [
+        {
+            "id": j.id,
+            "title": j.title,
+            "company": getattr(j, "company", ""),
+            "location": getattr(j, "location", ""),
+            "lat": float(j.latitude),
+            "lng": float(j.longitude),
+            "detailUrl": j.get_absolute_url() if hasattr(j, "get_absolute_url") else f"/jobs/{j.id}/",
+        }
+        for j in jobs_qs
+    ]
+
+    # 3) Mode 2 → same markers, but annotated with applicant counts
+    jobs_with_counts = (
+        jobs_qs
+        .annotate(app_count=Count("applications"))   # <-- FIXED LINE
+    )
+
+    applicant_pins = [
+        {
+            "id": j.id,
+            "title": j.title,
+            "company": getattr(j, "company", ""),
+            "location": getattr(j, "location", ""),
+            "lat": float(j.latitude),
+            "lng": float(j.longitude),
+            "applicants": j.app_count,
+            "detailUrl": j.get_absolute_url() if hasattr(j, "get_absolute_url") else f"/jobs/{j.id}/",
+        }
+        for j in jobs_with_counts
+        if j.app_count > 0
+    ]
+
+    return render(request, "jobs/recruiter_map.html", {
+        "jobs_json": json.dumps(job_pins),
+        "applicants_json": json.dumps(applicant_pins),
+        "GOOGLE_MAPS_API_KEY": settings.GOOGLE_MAPS_API_KEY,
+    })
+
+
+# ===============================================================
+# Recruiter Map API (JSON for recruiter map)
+# ===============================================================
+@login_required
+@recruiter_required
+def recruiter_map_api(request):
+    """
+    JSON endpoint for the recruiter map.
+
+    Optional query param:
+      - mode=jobs        → basic job pins
+      - mode=applicants  → same pins with applicant counts
+    """
+    user = request.user
+    mode = request.GET.get("mode", "jobs")
+
+    # Base queryset: this recruiter's active jobs with coordinates
+    jobs_qs = (
+        Job.objects
+        .filter(recruiter=user, is_active=True)
+        .exclude(latitude__isnull=True)
+        .exclude(longitude__isnull=True)
+    )
+
+    # If we need applicant counts, annotate first
+    if mode == "applicants":
+        jobs_qs = jobs_qs.annotate(app_count=Count("applications"))
+
+    payload = []
+    for j in jobs_qs:
+        item = {
+            "id": j.id,
+            "title": j.title,
+            "company": getattr(j, "company", ""),
+            "location": getattr(j, "location", ""),
+            "lat": float(j.latitude),
+            "lng": float(j.longitude),
+            "detailUrl": j.get_absolute_url() if hasattr(j, "get_absolute_url") else f"/jobs/{j.id}/",
+        }
+        if mode == "applicants":
+            item["applicants"] = getattr(j, "app_count", 0)
+        payload.append(item)
+
+    return JsonResponse({"jobs": payload})
+
+
 
 # ===============================================================
 # Job Seeker Dashboard
