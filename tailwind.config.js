@@ -5,7 +5,7 @@ module.exports = {
     "./static/js/**/*.js",
     "./static/css/**/*.css",
     "./**/*.html",
-
+    "./messaging/templates/**/*.html",
   ],
   theme: {
     extend: {
