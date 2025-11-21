@@ -172,37 +172,40 @@ def recruiter_applicants_kanban(request):
 
     backlog = applications.filter(status="applied")
     review = applications.filter(status="review")
+
+    # All final decisions (hired/rejected) still remain under "closed"
     Closed = applications.filter(status="closed")
-    Hired = applications.filter(status="hired")
+
+    # Remove hired column entirely
+    Hired = Application.objects.none()
 
     return render(request, "accounts/applicants_recruiter_view.html", {
         "backlog": backlog,
         "review": review,
         "Closed": Closed,
-        "Hired": Hired,
+        "Hired": Hired,   # Will be empty so the HTML section will disappear
     })
 
 
 @login_required
-def update_application_status(request, app_id):
-    if request.method != "POST":
-        return JsonResponse({"error": "POST required"}, status=400)
+def update_applicant_status(request, app_id):
+    if request.method == "POST":
+        new_status = request.POST.get("status")
+        final_decision = request.POST.get("final_decision")  # NEW
 
-    app = get_object_or_404(Application, id=app_id)
+        app = Application.objects.get(id=app_id)
 
-    # Ensure only the recruiter who owns this job can modify it
-    if app.job.recruiter != request.user:
-        return JsonResponse({"error": "Unauthorized"}, status=403)
+        # Drag & drop moves columns
+        if new_status in ["applied", "review", "closed"]:
+            app.status = new_status  
 
-    new_status = request.POST.get("status")
+        # Buttons update final decision only
+        if final_decision in ["hired", "rejected"]:
+            app.final_decision = final_decision
 
-    if new_status not in ["applied", "review", "hired", "closed"]:
-        return JsonResponse({"error": "Invalid status"}, status=400)
+        app.save()
+        return JsonResponse({"success": True})
 
-    app.status = new_status
-    app.save()
-
-    return JsonResponse({"success": True})
 
 # Candidate List (Recruiter only)
 @login_required

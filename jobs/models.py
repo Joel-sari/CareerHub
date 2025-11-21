@@ -190,17 +190,30 @@ class Application(models.Model):
     job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="applications")
     applicant = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="applications")
     note = models.TextField(blank=True)
+
+    # Column status – controls which list (Backlog / Review / Closed)
     status = models.CharField(
         max_length=20,
-          choices=[
-        ("applied", "Applied"),
-        ("review", "Under Review"),
-        ("interview", "Interview"),
-        ("hired", "Hired"),
-        ("closed", "Closed"),
-    ],
-    default="applied",
+        choices=[
+            ("applied", "Applied"),
+            ("review", "Under Review"),
+            ("interview", "Interview"),  # optional
+            ("closed", "Closed"),
+        ],
+        default="applied",
     )
+
+    # FINAL decision – Hire or Reject (only when in Closed column)
+    final_decision = models.CharField(
+        max_length=10,
+        choices=[
+            ("none", "None"),
+            ("hired", "Hired"),
+            ("rejected", "Rejected"),
+        ],
+        default="none",
+    )
+
     applied_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

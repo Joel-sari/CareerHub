@@ -42,12 +42,19 @@
               <p class="text-sm text-black">{{ app.applicant.username|capfirst }}</p>
               <p class="text-[12px] text-gray-700 truncate">{{ app.job.title }}</p>
               <p class="text-[13px] font-medium
-                {% if app.status == 'accepted' %}text-green-600
-                {% elif app.status == 'in_review' %}text-yellow-600
+                {% if app.final_decision == 'hired' %}text-green-600
+                {% elif app.final_decision == 'rejected' %}text-red-600
+                {% elif app.status == 'review' %}text-yellow-600
                 {% elif app.status == 'applied' %}text-blue-600
-                {% else %}text-gray-500{% endif %}">
-                {{ app.status|title }}
-              </p>
+                {% else %}text-gray-500
+                {% endif %}">
+
+                {% if app.final_decision %}
+                    {{ app.final_decision|title }}
+                {% else %}
+                    {{ app.status|title }}
+                {% endif %}
+            </p>
             </div>
           {% endfor %}
         {% else %}
