@@ -66,4 +66,27 @@ urlpatterns = [
     # JOB SEEKER APPLICATIONS
     # ---------------------------------------------------
     path("applications/", views.my_applications, name="my_applications"),
+
+    # ---------------------------------------------------
+    # CANDIDATE SEARCH (Recruiter)
+    # ---------------------------------------------------
+    path("candidates/", views.candidate_list, name="candidate_list"),
+    path("candidates/<int:user_id>/", views.candidate_profile, name="candidate_profile"),
+
+    # Saved search endpoints:
+    path("candidates/saved-searches/create/",
+         views.create_candidate_saved_search,
+         name="candidate_saved_search_create"),
+    path("candidates/saved-searches/<int:pk>/rename/",
+         views.rename_candidate_saved_search,
+         name="candidate_saved_search_rename"),
+    path("candidates/saved-searches/<int:pk>/update-from-current/",
+         views.update_candidate_saved_search_from_current,
+         name="candidate_saved_search_update_from_current"),
+    path("candidates/saved-searches/<int:pk>/delete/",
+         views.delete_candidate_saved_search,
+         name="candidate_saved_search_delete"),
+    path("candidates/saved-searches/<int:pk>/run/",
+         views.run_candidate_saved_search,
+         name="candidate_saved_search_run"),
 ]

@@ -9,7 +9,10 @@ from django.conf import settings
 from django import forms
 from django.db import models
 from jobs.models import Job, Application
+from django.utils import timezone
+from urllib.parse import urlencode
 
+from .models import User, JobSeekerProfile, CandidateSavedSearch
 
 from .forms import SignUpForm, JobSeekerProfileForm, RecruiterProfileForm
 from .models import User, JobSeekerProfile
@@ -85,11 +88,16 @@ def recruiter_dashboard(request):
     # Applications to this recruiter's jobs
     applications = Application.objects.filter(job__recruiter=user).select_related("applicant", "job")
 
+    # Saved candidate searches
+    saved_searches = CandidateSavedSearch.objects.filter(owner=user)[:5]
+
     return render(request, "accounts/recruiter_dashboard.html", {
         "user": user,
         "jobs": jobs,
         "applications": applications,
+        "saved_searches": saved_searches,
     })
+
 
 
 # -------------------------------------------------------
@@ -206,6 +214,52 @@ def update_applicant_status(request, app_id):
         app.save()
         return JsonResponse({"success": True})
 
+# -------------------------------------------------------
+# Saved Search Helpers
+# -------------------------------------------------------
+
+def extract_candidate_filters(query_dict):
+    """
+    Take request.GET or request.POST and return a plain dict
+    of the filter fields we care about.
+    """
+    allowed_keys = ["name", "skills", "education", "location"]
+
+    filters = {}
+    for key in allowed_keys:
+        value = query_dict.get(key, "").strip()
+        if value:
+            filters[key] = value
+
+    # sort placeholder for UI
+    sort = query_dict.get("sort")
+    if sort:
+        filters["sort"] = sort
+
+    return filters
+
+
+def build_default_search_name(filters):
+    """
+    Build a default human-readable label like:
+    "Python • Atlanta • BS".
+    """
+    parts = []
+
+    if "skills" in filters:
+        parts.append(filters["skills"])
+    if "location" in filters:
+        parts.append(filters["location"])
+    if "education" in filters:
+        parts.append(filters["education"])
+    if "name" in filters:
+        parts.append(filters["name"])
+
+    if not parts:
+        return "All candidates"
+
+    return " • ".join(parts)
+
 
 # Candidate List (Recruiter only)
 @login_required
@@ -232,7 +286,6 @@ def candidate_list(request):
     if education:
         candidates = candidates.filter(education__icontains=education)
 
-    # Match the single "location" field across multiple address fields
     if location:
         candidates = candidates.filter(
             models.Q(city__icontains=location)
@@ -240,10 +293,19 @@ def candidate_list(request):
             | models.Q(country__icontains=location)
         )
 
+    # --- CURRENT FILTERS DICT (for saving) ---
+    current_filters = extract_candidate_filters(request.GET)
+
+    # --- SAVED SEARCHES FOR THIS RECRUITER ---
+    saved_searches = CandidateSavedSearch.objects.filter(owner=request.user)
+
     # --- RENDER TEMPLATE ---
     return render(request, "accounts/candidate_list.html", {
         "candidates": candidates,
+        "saved_searches": saved_searches,
+        "current_filters": current_filters,
     })
+
 
 
 
@@ -304,6 +366,144 @@ def email_candidate(request, user_id):
         "form": form,
         "candidate": candidate,
     })
+
+# -------------------------------------------------------
+# Candidate Saved Searches (Recruiter)
+# -------------------------------------------------------
+
+@login_required
+def create_candidate_saved_search(request):
+    if request.user.role != User.RECRUITER:
+        return HttpResponseForbidden("Only recruiters can save searches.")
+
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=400)
+
+    filters = extract_candidate_filters(request.POST)
+    sort_order = filters.get("sort", "")
+
+    # Soft cap at 20
+    existing_count = CandidateSavedSearch.objects.filter(owner=request.user).count()
+    overwrite_id = request.POST.get("overwrite_id")
+
+    if existing_count >= 20 and not overwrite_id:
+        return JsonResponse(
+            {
+                "status": "error",
+                "code": "soft_cap_reached",
+                "message": "You’ve reached the limit of 20 saved searches.",
+            },
+            status=400,
+        )
+
+    name = request.POST.get("name", "").strip() or build_default_search_name(filters)
+
+    # Overwrite existing
+    if overwrite_id:
+        saved = get_object_or_404(CandidateSavedSearch, pk=overwrite_id, owner=request.user)
+        saved.name = name
+        saved.filters = filters
+        saved.sort_order = sort_order
+        saved.updated_at = timezone.now()
+        saved.save()
+        return JsonResponse(
+            {"status": "ok", "mode": "overwritten", "id": saved.id, "name": saved.name}
+        )
+
+    # Name collision detection
+    existing = CandidateSavedSearch.objects.filter(owner=request.user, name=name).first()
+    if existing:
+        return JsonResponse(
+            {
+                "status": "collision",
+                "message": f"You already have a search named “{name}”.",
+                "existing_id": existing.id,
+            },
+            status=409,
+        )
+
+    saved = CandidateSavedSearch.objects.create(
+        owner=request.user,
+        name=name,
+        filters=filters,
+        sort_order=sort_order,
+    )
+
+    return JsonResponse(
+        {"status": "ok", "mode": "created", "id": saved.id, "name": saved.name}
+    )
+
+
+@login_required
+def rename_candidate_saved_search(request, pk):
+    if request.user.role != User.RECRUITER:
+        return HttpResponseForbidden("Only recruiters can rename searches.")
+
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=400)
+
+    saved = get_object_or_404(CandidateSavedSearch, pk=pk, owner=request.user)
+    new_name = request.POST.get("name", "").strip()
+    if not new_name:
+        return JsonResponse({"error": "Name required"}, status=400)
+
+    saved.name = new_name
+    saved.save(update_fields=["name", "updated_at"])
+    return JsonResponse({"status": "ok", "id": saved.id, "name": saved.name})
+
+
+@login_required
+def update_candidate_saved_search_from_current(request, pk):
+    if request.user.role != User.RECRUITER:
+        return HttpResponseForbidden("Only recruiters can update searches.")
+
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=400)
+
+    saved = get_object_or_404(CandidateSavedSearch, pk=pk, owner=request.user)
+    filters = extract_candidate_filters(request.POST)
+    sort_order = filters.get("sort", "")
+
+    saved.filters = filters
+    saved.sort_order = sort_order
+    saved.updated_at = timezone.now()
+    saved.save()
+    return JsonResponse({"status": "ok", "id": saved.id})
+
+
+@login_required
+def delete_candidate_saved_search(request, pk):
+    if request.user.role != User.RECRUITER:
+        return HttpResponseForbidden("Only recruiters can delete searches.")
+
+    if request.method != "POST":
+        return JsonResponse({"error": "POST required"}, status=400)
+
+    saved = get_object_or_404(CandidateSavedSearch, pk=pk, owner=request.user)
+    saved.delete()
+    return JsonResponse({"status": "ok"})
+
+
+@login_required
+def run_candidate_saved_search(request, pk):
+    if request.user.role != User.RECRUITER:
+        return HttpResponseForbidden("Only recruiters can run saved searches.")
+
+    saved = get_object_or_404(CandidateSavedSearch, pk=pk, owner=request.user)
+    saved.last_run_at = timezone.now()
+    saved.save(update_fields=["last_run_at"])
+
+    base_url = "/accounts/candidates/"  # or use reverse if you have a named URL
+    # But better, if URL name is 'candidate_list':
+    from django.urls import reverse
+    base_url = reverse("candidate_list")
+
+    qs = saved.filters
+    query_string = urlencode(qs)
+    if query_string:
+        return redirect(f"{base_url}?{query_string}")
+    return redirect(base_url)
+
 
 # -------------------------------------------------------
 # Admin Views

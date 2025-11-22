@@ -6,7 +6,6 @@
 <div class="min-h-screen bg-white px-10 py-12">
   <div class="grid grid-cols-3 gap-20 gap-x-30 w-[95%] mx-auto items-start">
 
-
     <!-- ================= LEFT: Profile ================= -->
     <div class="flex flex-col items-center">
       <!-- Greeting -->
@@ -25,70 +24,104 @@
     </div>
 
     <!-- ================= MIDDLE COLUMN ================= -->
-<div class="flex flex-col gap-12">
+    <div class="flex flex-col gap-12">
 
-  <!-- === CARD 1: View Applicants === -->
-  <div>
-    <h2 class="text-2xl font-semibold text-[#243251] mb-6">View Applicants</h2>
-
-    <div class="border border-black/30 rounded-[35px] p-6 min-h-[300px] flex flex-col justify-between shadow-sm bg-white">
+      <!-- === CARD 1: View Applicants === -->
       <div>
-        <p class="text-xl font-medium text-[#243251] mb-5">Applicants</p>
+        <h2 class="text-2xl font-semibold text-[#243251] mb-6">View Applicants</h2>
 
-        <!-- Small preview of recent applicants -->
-        {% if applications %}
-          {% for app in applications|slice:":5" %}
-            <div class="grid grid-cols-3 gap-x-8 items-center py-2 border-b border-gray-100">
-              <p class="text-sm text-black">{{ app.applicant.username|capfirst }}</p>
-              <p class="text-[12px] text-gray-700 truncate">{{ app.job.title }}</p>
-              <p class="text-[13px] font-medium
-                {% if app.final_decision == 'hired' %}text-green-600
-                {% elif app.final_decision == 'rejected' %}text-red-600
-                {% elif app.status == 'review' %}text-yellow-600
-                {% elif app.status == 'applied' %}text-blue-600
-                {% else %}text-gray-500
-                {% endif %}">
+        <div class="border border-black/30 rounded-[35px] p-6 min-h-[300px] flex flex-col justify-between shadow-sm bg-white">
+          <div>
+            <p class="text-xl font-medium text-[#243251] mb-5">Applicants</p>
 
-                {% if app.final_decision %}
-                    {{ app.final_decision|title }}
-                {% else %}
-                    {{ app.status|title }}
-                {% endif %}
-            </p>
-            </div>
-          {% endfor %}
-        {% else %}
-          <p class="text-gray-400 mt-5 text-center">No applicants yet.</p>
-        {% endif %}
+            <!-- Small preview of recent applicants -->
+            {% if applications %}
+              {% for app in applications|slice:":5" %}
+                <div class="grid grid-cols-3 gap-x-8 items-center py-2 border-b border-gray-100">
+                  <p class="text-sm text-black">{{ app.applicant.username|capfirst }}</p>
+                  <p class="text-[12px] text-gray-700 truncate">{{ app.job.title }}</p>
+                  <p class="text-[13px] font-medium
+                    {% if app.final_decision == 'hired' %}text-green-600
+                    {% elif app.final_decision == 'rejected' %}text-red-600
+                    {% elif app.status == 'review' %}text-yellow-600
+                    {% elif app.status == 'applied' %}text-blue-600
+                    {% else %}text-gray-500
+                    {% endif %}">
+                    {% if app.final_decision %}
+                      {{ app.final_decision|title }}
+                    {% else %}
+                      {{ app.status|title }}
+                    {% endif %}
+                  </p>
+                </div>
+              {% endfor %}
+            {% else %}
+              <p class="text-gray-400 mt-5 text-center">No applicants yet.</p>
+            {% endif %}
+          </div>
+
+          <!-- Button to Kanban -->
+          <a href="{% url 'applicant_kanban' %}"
+             class="self-center mt-8 bg-[#42547c] text-white rounded-full px-8 py-2.5 border border-[#2b3853] hover:bg-[#2b3853] transition">
+            Manage Applicants
+          </a>
+        </div>
       </div>
 
-      <!-- Button to Kanban -->
-      <a href="{% url 'applicant_kanban' %}"
-         class="self-center mt-8 bg-[#42547c] text-white rounded-full px-8 py-2.5 border border-[#2b3853] hover:bg-[#2b3853] transition">
-        Manage Applicants
-      </a>
+      <!-- === CARD 2: View Candidates === -->
+      <div>
+        <h2 class="text-2xl font-semibold text-[#243251] mb-6">View Candidates</h2>
+
+        <div class="border border-black/30 rounded-[35px] p-6 min-h-[300px] flex flex-col justify-between shadow-sm bg-white">
+          <p class="text-xl font-medium text-[#243251]">Candidate Directory</p>
+
+          <p class="text-sm text-gray-500 mt-2">
+            Browse the global talent pool of public job seekers.
+          </p>
+
+          <a href="{% url 'candidate_list' %}"
+             class="self-center mt-8 bg-[#42547c] text-white rounded-full px-8 py-2.5 border border-[#2b3853] hover:bg-[#2b3853] transition">
+            View Candidates
+          </a>
+        </div>
+      </div>
+
+      <!-- === CARD 3: Saved Candidate Searches === -->
+      <div>
+        <h2 class="text-2xl font-semibold text-[#243251] mb-6">Saved Candidate Searches</h2>
+
+        <div class="border border-black/30 rounded-[35px] p-6 min-h-[200px] flex flex-col justify-between shadow-sm bg-white">
+          {% if saved_searches %}
+            <ul class="space-y-3">
+              {% for search in saved_searches %}
+                <li class="flex items-center justify-between">
+                  <a href="{% url 'candidate_saved_search_run' search.id %}"
+                     class="text-sm text-[#42547c] hover:underline">
+                    {{ search.name }}
+                  </a>
+                  {% if search.last_run_at %}
+                    <span class="text-[11px] text-gray-400">
+                      Last run: {{ search.last_run_at|date:"M j, g:i a" }}
+                    </span>
+                  {% endif %}
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <p class="text-gray-400 text-sm">
+              No saved searches yet. Go to the Candidate Directory and click “Save Search”.
+            </p>
+          {% endif %}
+
+          <a href="{% url 'candidate_list' %}"
+             class="self-center mt-6 bg-[#42547c] text-white rounded-full px-6 py-2 text-sm border border-[#2b3853] hover:bg-[#2b3853] transition">
+            Open Candidate Directory
+          </a>
+        </div>
+      </div>
+
     </div>
-  </div>
 
-  <!-- === CARD 2: View Candidates === -->
-  <div>
-    <h2 class="text-2xl font-semibold text-[#243251] mb-6">View Candidates</h2>
-
-    <div class="border border-black/30 rounded-[35px] p-6 min-h-[300px] flex flex-col justify-between shadow-sm bg-white">
-      <p class="text-xl font-medium text-[#243251]">Candidate Directory</p>
-
-      <p class="text-sm text-gray-500 mt-2">
-        Browse the global talent pool of public job seekers.
-      </p>
-
-      <a href="{% url 'candidate_list' %}"
-         class="self-center mt-8 bg-[#42547c] text-white rounded-full px-8 py-2.5 border border-[#2b3853] hover:bg-[#2b3853] transition">
-        View Candidates
-      </a>
-    </div>
-  </div>
-
-</div>
     <!-- ================= RIGHT: Job Listings ================= -->
     <div>
       <!-- Section Heading + Map Link -->
@@ -103,16 +136,16 @@
       <!-- Job Cards -->
       <div class="flex flex-col gap-6 items-center">
         {% for job in jobs %}
-        <div class="w-[90%] p-6 rounded-[30px] border border-black/20 shadow-sm bg-white">
-          <p class="text-xl font-medium mb-1">{{ job.title }}</p>
-          <p class="text-sm text-gray-600 mb-2">{{ job.location }}</p>
-          <a href="{% url 'jobs:job_detail' job.id %}"
-             class="inline-block bg-[#42547c] text-white rounded-full px-5 py-1 text-sm hover:bg-[#2b3853] transition">
-            View Details
-          </a>
-        </div>
+          <div class="w-[90%] p-6 rounded-[30px] border border-black/20 shadow-sm bg-white">
+            <p class="text-xl font-medium mb-1">{{ job.title }}</p>
+            <p class="text-sm text-gray-600 mb-2">{{ job.location }}</p>
+            <a href="{% url 'jobs:job_detail' job.id %}"
+               class="inline-block bg-[#42547c] text-white rounded-full px-5 py-1 text-sm hover:bg-[#2b3853] transition">
+              View Details
+            </a>
+          </div>
         {% empty %}
-        <p class="text-gray-400 text-center">No job listings yet.</p>
+          <p class="text-gray-400 text-center">No job listings yet.</p>
         {% endfor %}
       </div>
 
