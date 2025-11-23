@@ -17,11 +17,14 @@
              data-id="{{ app.id }}"
              class="p-4 mb-4 bg-gray-50 rounded-xl shadow cursor-move">
 
-            <a href="{% url 'candidate_profile' app.applicant.id %}">
-                <p class="font-semibold text-lg">{{ app.applicant.username }}</p>
-                <p class="text-sm text-gray-600">{{ app.job.title }}</p>
-                <span class="text-xs text-blue-600 font-medium">Applied</span>
-            </a>
+            <!-- ADDED pointer-events-none -->
+            <div class="pointer-events-none">
+                <a href="{% url 'candidate_profile' app.applicant.id %}">
+                    <p class="font-semibold text-lg">{{ app.applicant.username }}</p>
+                    <p class="text-sm text-gray-600">{{ app.job.title }}</p>
+                    <span class="text-xs text-blue-600 font-medium">Applied</span>
+                </a>
+            </div>
 
         </div>
         {% empty %}
@@ -43,11 +46,13 @@
              data-id="{{ app.id }}"
              class="p-4 mb-4 bg-gray-50 rounded-xl shadow cursor-move">
 
-            <a href="{% url 'candidate_profile' app.applicant.id %}">
-                <p class="font-semibold text-lg">{{ app.applicant.username }}</p>
-                <p class="text-sm text-gray-600">{{ app.job.title }}</p>
-                <span class="text-xs text-yellow-600 font-medium">In Review</span>
-            </a>
+            <div class="pointer-events-none">
+                <a href="{% url 'candidate_profile' app.applicant.id %}">
+                    <p class="font-semibold text-lg">{{ app.applicant.username }}</p>
+                    <p class="text-sm text-gray-600">{{ app.job.title }}</p>
+                    <span class="text-xs text-yellow-600 font-medium">In Review</span>
+                </a>
+            </div>
 
         </div>
         {% endfor %}
@@ -67,11 +72,13 @@
              data-id="{{ app.id }}"
              class="p-4 mb-4 bg-gray-50 rounded-xl shadow cursor-move">
 
-            <a href="{% url 'candidate_profile' app.applicant.id %}">
-                <p class="font-semibold text-lg">{{ app.applicant.username }}</p>
-                <p class="text-sm text-gray-600">{{ app.job.title }}</p>
-                <span class="text-xs text-gray-600 font-medium">Closed</span>
-            </a>
+            <div class="pointer-events-none">
+                <a href="{% url 'candidate_profile' app.applicant.id %}">
+                    <p class="font-semibold text-lg">{{ app.applicant.username }}</p>
+                    <p class="text-sm text-gray-600">{{ app.job.title }}</p>
+                    <span class="text-xs text-gray-600 font-medium">Closed</span>
+                </a>
+            </div>
 
         </div>
         {% endfor %}
@@ -91,11 +98,13 @@
              data-id="{{ app.id }}"
              class="p-4 mb-4 bg-gray-50 rounded-xl shadow cursor-move">
 
-            <a href="{% url 'candidate_profile' app.applicant.id %}">
-                <p class="font-semibold text-lg">{{ app.applicant.username }}</p>
-                <p class="text-sm text-gray-600">{{ app.job.title }}</p>
-                <span class="text-xs text-green-600 font-medium">Hired</span>
-            </a>
+            <div class="pointer-events-none">
+                <a href="{% url 'candidate_profile' app.applicant.id %}">
+                    <p class="font-semibold text-lg">{{ app.applicant.username }}</p>
+                    <p class="text-sm text-gray-600">{{ app.job.title }}</p>
+                    <span class="text-xs text-green-600 font-medium">Hired</span>
+                </a>
+            </div>
 
         </div>
         {% endfor %}
@@ -121,25 +130,21 @@ function allowDrop(ev) {
 }
 
 function drag(ev) {
-    ev.dataTransfer.setData("id", ev.target.getAttribute("data-id"));
+    ev.dataTransfer.setData("id", ev.currentTarget.getAttribute("data-id"));
 }
 
 function drop(ev) {
     ev.preventDefault();
 
-    // Get dragged application ID
+    // Always use the COLUMN, not child text
+    let column = ev.currentTarget;
+
     let appId = ev.dataTransfer.getData("id");
+    let newStatus = column.getAttribute("data-status");
 
-    // Get lowercase model status from column
-    let newStatus = ev.currentTarget.getAttribute("data-status");
-
-    // Find the card
     let card = document.querySelector(`[data-id='${appId}']`);
+    column.appendChild(card);
 
-    // Move card visually
-    ev.currentTarget.appendChild(card);
-
-    // Update status label
     let statusLabel = card.querySelector("span");
 
     if (newStatus === "applied") {
@@ -159,11 +164,7 @@ function drop(ev) {
         statusLabel.className = "text-xs text-gray-600 font-medium";
     }
 
-    // Build dynamic backend URL
-    let updateUrl = `/accounts/recruiter/applicant/${appId}/update-status/`;
-
-    // Send AJAX request to Django
-    fetch(updateUrl, {
+    fetch(`/accounts/recruiter/applicant/${appId}/update-status/`, {
         method: "POST",
         headers: {
             "X-CSRFToken": getCookie("csrftoken"),
@@ -173,7 +174,6 @@ function drop(ev) {
     });
 }
 
-// CSRF Token helper
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== "") {
