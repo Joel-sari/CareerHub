@@ -22,4 +22,13 @@ urlpatterns = [
     path("accounts/", include("accounts.urls")),
     path('', include('home.urls')),
     path('jobs/', include('jobs.urls')),
+    path('messaging/', include('messaging.urls')),
 ]
+
+# ================================
+# MEDIA (PROFILE PICTURE UPLOADS)
+# ================================
+from django.conf import settings
+from django.conf.urls.static import static
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

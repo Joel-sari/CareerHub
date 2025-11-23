@@ -1,0 +1,71 @@
+{% extends "base.html" %} {% block content %}
+
+<div
+  class="flex flex-col items-center w-full bg-white text-[#233250] px-4 py-10"
+>
+  <!-- Header -->
+  <div class="w-full max-w-2xl flex items-center justify-between mb-6">
+    <h2 class="text-2xl font-semibold">
+      Conversation with {% if other_user %}
+      <!-- Place holder-->
+      {{ other_user.get_full_name|default:other_user.username }}
+      <!-- Place holder-->
+      {% else %}
+      <!-- Place holder-->
+      participants
+      <!-- Place holder-->
+      {% endif %}
+    </h2>
+
+    <a
+      href="{% url 'messaging:inbox' %}"
+      class="text-sm text-blue-600 hover:underline"
+    >
+      ← Back to inbox
+    </a>
+  </div>
+
+  <!-- Messages -->
+  <div
+    class="w-full max-w-2xl border rounded-lg bg-white p-4 h-96 overflow-y-auto space-y-3 shadow-sm"
+  >
+    {% for msg in messages %}
+    <div
+      class="flex {% if msg.sender == user %} justify-end {% else %} justify-start {% endif %}"
+    >
+      <div
+        class="max-w-xs md:max-w-md px-3 py-2 rounded-lg {% if msg.sender == user %} bg-blue-600 text-white {% else %} bg-gray-200 text-gray-900 {% endif %}"
+      >
+        <p class="text-sm">{{ msg.body|linebreaksbr }}</p>
+        <p class="text-[0.7rem] mt-1 opacity-75 text-right">
+          {{ msg.created_at|date:"M d, Y H:i" }}
+        </p>
+      </div>
+    </div>
+    {% empty %}
+    <p class="text-gray-600">No messages yet. Say hi! 👋</p>
+    {% endfor %}
+  </div>
+
+  <!-- Send message -->
+  <form method="post" class="w-full max-w-2xl mt-4 space-y-2">
+    {% csrf_token %}
+
+    <textarea
+      name="body"
+      rows="3"
+      class="w-full border rounded-lg p-3 bg-[#ECF2FF] focus:ring-2 focus:ring-blue-500"
+      placeholder="Type your message..."
+      required
+    ></textarea>
+
+    <button
+      type="submit"
+      class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+    >
+      Send
+    </button>
+  </form>
+</div>
+
+{% endblock %}

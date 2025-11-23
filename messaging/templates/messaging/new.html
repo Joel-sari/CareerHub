@@ -1,0 +1,48 @@
+{% extends "base.html" %} {% block content %}
+<div
+  class="flex flex-col items-center justify-center min-h-screen bg-white text-[#233250] px-4 py-10"
+>
+  <div class="w-full max-w-xl">
+    <h2 class="text-2xl font-semibold mb-4">New message</h2>
+
+    <form method="post" class="space-y-4">
+      {% csrf_token %}
+
+      <div>
+        <label class="block text-sm font-medium mb-1">Recipient</label>
+        {{ form.recipient_query }} {% if form.recipient_query.errors %}
+        <p class="text-xs text-red-600 mt-1">
+          {{ form.recipient_query.errors.0 }}
+        </p>
+        {% else %}
+        <p class="text-xs text-gray-500 mt-1">
+          Type a username or email of the person you want to message.
+        </p>
+        {% endif %}
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-1">Message</label>
+        {{ form.body }} {% if form.body.errors %}
+        <p class="text-xs text-red-600 mt-1">{{ form.body.errors.0 }}</p>
+        {% endif %}
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button
+          type="submit"
+          class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+        >
+          Send
+        </button>
+        <a
+          href="{% url 'messaging:inbox' %}"
+          class="text-sm text-gray-600 hover:underline"
+        >
+          Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

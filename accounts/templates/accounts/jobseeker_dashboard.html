@@ -1,5 +1,5 @@
-{% extends "base.html" %}
-{% load static %}
+{% extends "base.html" %} 
+{% load static %} 
 {% block content %}
 
 <div class="min-h-screen bg-white px-6 py-10">
@@ -17,11 +17,49 @@
         </h1>
 
         <div class="flex flex-col items-center mt-6">
-          <img src="{% static 'images/icon_profile.png' %}"
-               class="w-[90px] h-[90px] rounded-full border border-gray-300 object-cover shadow-sm mb-3"
-               alt="Profile Picture">
-          <p class="text-lg font-semibold text-[#243251]">{{ user.username|capfirst }}</p>
+
+          {% if user.jobseeker.profile_picture %}
+            <img src="{{ user.jobseeker.profile_picture.url }}"
+                 class="w-[90px] h-[90px] rounded-full border border-gray-300 object-cover shadow-sm mb-3">
+          {% else %}
+            <img src="{% static 'images/icon_profile.png' %}"
+                 class="w-[90px] h-[90px] rounded-full border border-gray-300 object-cover shadow-sm mb-3">
+          {% endif %}
+
+          <p class="text-lg font-semibold text-[#243251]">
+            {{ user.username|capfirst }}
+          </p>
           <p class="text-sm text-gray-500 mt-1">Job Seeker</p>
+
+          <a href="{% url 'jobseeker_edit_profile' %}"
+             class="mt-4 text-sm text-[#42547c] underline hover:text-[#2b3853]">
+            Edit Profile
+          </a>
+
+          <!-- ===== EDUCATION PREVIEW ===== -->
+          <div class="mt-6 text-center">
+            <h4 class="font-semibold text-[#243251] mb-2">Education</h4>
+            {% for edu in user.educations.all %}
+              <p class="text-xs text-gray-600">
+                {{ edu.degree }} – {{ edu.school }}
+              </p>
+            {% empty %}
+              <p class="text-xs text-gray-400">No education added.</p>
+            {% endfor %}
+          </div>
+
+          <!-- ===== EXPERIENCE PREVIEW ===== -->
+          <div class="mt-4 text-center">
+            <h4 class="font-semibold text-[#243251] mb-2">Experience</h4>
+            {% for exp in user.experiences.all %}
+              <p class="text-xs text-gray-600">
+                {{ exp.title }} @ {{ exp.company }}
+              </p>
+            {% empty %}
+              <p class="text-xs text-gray-400">No experience added.</p>
+            {% endfor %}
+          </div>
+
         </div>
       </div>
 
@@ -31,27 +69,47 @@
           Recommended Jobs Nearby
         </h2>
 
+        <!-- View on Map Button -->
+        <div class="w-full flex justify-center mb-4">
+          <a
+            href="{% url 'jobs:job_map' %}"
+            class="text-[#42547c] hover:text-[#2b3853] font-medium text-sm underline"
+          >
+            View on Map
+          </a>
+        </div>
+
         <div class="flex flex-col gap-6 items-center">
           {% for job in recommended_jobs %}
-          <div class="w-[90%] p-6 rounded-[30px] border border-black/20 shadow-sm bg-white hover:shadow-md transition">
+          <div
+            class="w-[90%] p-6 rounded-[30px] border border-black/20 shadow-sm bg-white hover:shadow-md transition"
+          >
             <p class="text-xl font-medium mb-1">{{ job.title }}</p>
             <p class="text-sm text-gray-600">{{ job.company_name }}</p>
             <p class="text-sm text-gray-500 mb-3">{{ job.location }}</p>
-            <a href="{% url 'jobs:job_detail' job.id %}"
-               class="inline-block bg-[#42547c] text-white rounded-full px-5 py-1 text-sm hover:bg-[#2b3853] transition">
+            <a
+              href="{% url 'jobs:job_detail' job.id %}"
+              class="inline-block bg-[#42547c] text-white rounded-full px-5 py-1 text-sm hover:bg-[#2b3853] transition"
+            >
               View Details
             </a>
           </div>
           {% empty %}
-          <p class="text-gray-400 text-center mt-4">No recommended jobs right now.</p>
+          <p class="text-gray-400 text-center mt-4">
+            No recommended jobs right now.
+          </p>
           {% endfor %}
         </div>
 
         <!-- Browse More Button -->
         <div class="text-center mt-12">
-          <p class="text-[#243251] font-light mb-3">Endless opportunity awaits.</p>
-          <a href="{% url 'jobs:job_list' %}"
-             class="inline-block bg-[#efce63] text-[#243251] rounded-full px-8 py-3 font-semibold text-lg hover:bg-[#d4b94a] transition">
+          <p class="text-[#243251] font-light mb-3">
+            Endless opportunity awaits.
+          </p>
+          <a
+            href="{% url 'jobs:job_list' %}"
+            class="inline-block bg-[#efce63] text-[#243251] rounded-full px-8 py-3 font-semibold text-lg hover:bg-[#d4b94a] transition"
+          >
             Browse Jobs
           </a>
         </div>
@@ -64,39 +122,52 @@
         </h2>
 
         <div class="flex flex-col gap-6 items-center">
+
           {% for app in applications %}
-          <div class="w-[90%] p-5 rounded-[30px] border border-black/20 shadow-sm bg-white flex justify-between items-center">
+          <div
+            class="w-[90%] p-5 rounded-[30px] border border-black/20 shadow-sm bg-white flex justify-between items-center"
+          >
             <div>
               <p class="text-sm font-medium">{{ app.job.title }}</p>
               <p class="text-xs text-gray-600">{{ app.job.company_name }}</p>
             </div>
 
-            {% if app.status == "in_review" %}
-              <span class="text-[#d9b337] text-sm font-medium">In Review</span>
-            {% elif app.status == "accepted" %}
-              <span class="text-[#26b509] text-sm font-medium">Accepted</span>
-            {% elif app.status == "applied" %}
-              <span class="text-[#607cb9] text-sm font-medium">Applied</span>
+            {% if app.final_decision == "hired" %}
+              <span class="text-green-600 text-sm font-medium">Accepted</span>
+
+            {% elif app.final_decision == "rejected" %}
+              <span class="text-red-600 text-sm font-medium">Rejected</span>
+
             {% else %}
-              <span class="text-gray-500 text-sm">{{ app.status|title }}</span>
+              {% if app.status == "review" %}
+                <span class="text-[#d9b337] text-sm font-medium">In Review</span>
+              {% elif app.status == "applied" %}
+                <span class="text-[#607cb9] text-sm font-medium">Applied</span>
+              {% else %}
+                <span class="text-gray-500 text-sm">{{ app.status|title }}</span>
+              {% endif %}
             {% endif %}
           </div>
           {% empty %}
-          <p class="text-gray-400 text-center mt-4">You haven’t applied to any jobs yet.</p>
+          <p class="text-gray-400 text-center mt-4">
+            You haven’t applied to any jobs yet.
+          </p>
           {% endfor %}
         </div>
 
-          <!-- View More -->
-  <div class="text-center mt-10">
-    <a href="{% url 'my_applications' %}"
-       class="btn-secondary px-8 py-2 text-[16px]">
-      View More
-    </a>
-  </div>
-</div>
+        <!-- View More -->
+        <div class="text-center mt-10">
+          <a
+            href="{% url 'my_applications' %}"
+            class="btn-secondary px-8 py-2 text-[16px]"
+          >
+            View More
+          </a>
+        </div>
+      </div>
 
-    </div> <!-- End Grid -->
-  </div> <!-- End Wrapper -->
+    </div>
+  </div>
 </div>
 
 {% endblock %}

@@ -15,5 +15,6 @@ urlpatterns = [
     path("map/", views.job_map, name="job_map"),
     path("api/jobs-map/", views.jobs_map_api, name="jobs_map_api"),
     path("dashboard/", views.jobseeker_dashboard, name="jobseeker_dashboard"),
-
+    path("map/recruiter/", views.recruiter_map, name="recruiter_map"),
+    path("api/recruiter-map/", views.recruiter_map_api, name="recruiter_map_api"),
 ]

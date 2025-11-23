@@ -5,8 +5,10 @@
   <div class="max-w-[1200px] mx-auto">
     <h2 class="text-3xl font-semibold text-[#243251] mb-8">Candidate Directory</h2>
 
-    <!-- FILTER FORM -->
-    <form method="get" class="mb-8 bg-gray-50 p-6 rounded-2xl border border-gray-200 shadow-sm">
+        <!-- FILTER FORM -->
+    <form id="candidate-filters-form"
+          method="get"
+          class="mb-8 bg-gray-50 p-6 rounded-2xl border border-gray-200 shadow-sm">
       <div class="flex flex-wrap items-center gap-4">
         <input type="text" name="name" value="{{ request.GET.name }}"
                placeholder="Name"
@@ -21,11 +23,32 @@
                placeholder="Location"
                class="border border-gray-300 rounded-full px-4 py-2 w-44 focus:ring-2 focus:ring-[#42547c] outline-none">
 
-        <button type="submit" class="btn-primary text-[16px] px-8 py-2">
+        <button type="submit"
+                class="btn-primary text-[16px] px-8 py-2">
           🔍 Search
         </button>
+
+        <!-- Save Search Button -->
+        <button type="button"
+                id="save-search-btn"
+                class="border border-[#42547c] text-[#42547c] rounded-full px-6 py-2 text-[14px] hover:bg-[#42547c] hover:text-white transition">
+          💾 Save Search
+        </button>
+
+        <!-- Saved Searches Dropdown -->
+        <select id="saved-searches-select"
+                class="border border-gray-300 rounded-full px-4 py-2 text-sm min-w-[220px]"
+                onchange="onSavedSearchChange(this)">
+          <option value="">Saved searches…</option>
+          {% for search in saved_searches %}
+            <option value="{{ search.id }}">
+              {{ search.name }}
+            </option>
+          {% endfor %}
+        </select>
       </div>
     </form>
+
 
     <!-- RESULTS -->
     {% if candidates %}
@@ -53,5 +76,100 @@
     {% endif %}
   </div>
 </div>
+
+<script>
+  // CSRF helper: read csrftoken from cookies
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+  const csrftoken = getCookie('csrftoken');
+
+  const saveBtn = document.getElementById("save-search-btn");
+  const formEl = document.getElementById("candidate-filters-form");
+  const savedSelect = document.getElementById("saved-searches-select");
+
+  function onSavedSearchChange(select) {
+    const id = select.value;
+    if (!id) return;
+
+    const baseRunUrlTemplate = "{% url 'candidate_saved_search_run' 0 %}";
+    const url = baseRunUrlTemplate.replace("0", id);
+    window.location.href = url;
+  }
+
+  saveBtn?.addEventListener("click", function () {
+    const formData = new FormData(formEl);
+
+    let name = prompt("Name this search (leave blank for automatic name):", "");
+    if (name !== null && name.trim() !== "") {
+      formData.set("name", name.trim());
+    }
+
+    fetch("{% url 'candidate_saved_search_create' %}", {
+      method: "POST",
+      headers: {
+        "X-CSRFToken": csrftoken,
+      },
+      body: formData,
+    })
+      .then(resp => resp.json().then(data => ({ status: resp.status, data })))
+      .then(({ status, data }) => {
+        if (status === 409 && data.status === "collision") {
+          const overwrite = confirm(
+            data.message + "\n\nOK = Overwrite existing search, Cancel = Cancel."
+          );
+          if (overwrite) {
+            formData.set("overwrite_id", data.existing_id);
+            return fetch("{% url 'candidate_saved_search_create' %}", {
+              method: "POST",
+              headers: {
+                "X-CSRFToken": csrftoken,
+              },
+              body: formData,
+            }).then(r => r.json().then(d => ({ status: r.status, data: d })));
+          } else {
+            return null;
+          }
+        } else if (status === 400 && data.code === "soft_cap_reached") {
+          alert(data.message);
+          return null;
+        }
+        return { status, data };
+      })
+      .then(result => {
+        if (!result) return;
+        const { status, data } = result;
+        if (status !== 200 || data.status !== "ok") {
+          console.error("Unexpected save response:", result);
+          alert("Could not save search.");
+          return;
+        }
+
+        // Add to dropdown
+        const opt = document.createElement("option");
+        opt.value = data.id;
+        opt.textContent = data.name;
+        savedSelect.appendChild(opt);
+        savedSelect.value = data.id;
+
+        alert("Saved search: " + data.name);
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Error saving search.");
+      });
+  });
+</script>
 
 {% endblock %}

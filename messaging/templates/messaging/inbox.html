@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-4xl mx-auto px-6 py-10 text-[#233250]">
+
+  <div class="flex items-center justify-between mb-8">
+      <h2 class="text-3xl font-bold">Messages</h2>
+
+      <a href="{% url 'messaging:new' %}"
+         class="text-sm px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition">
+          + New message
+      </a>
+  </div>
+
+  {% if conversations %}
+      <div class="space-y-3">
+
+          {% for item in conversations %}
+              {% with convo=item.conversation other=item.other_user unread=item.unread_count %}
+
+              {% if convo and convo.pk %}
+              <a href="{% url 'messaging:thread' convo.pk %}"
+                 class="block border rounded-xl px-5 py-4 bg-white shadow-sm hover:shadow-md transition">
+
+                  <div class="flex items-center justify-between">
+                      <div>
+                          <p class="font-semibold text-lg">
+                              {% if other %}
+                                  {{ other.get_full_name|default:other.username }}
+                              {% else %}
+                                  (Group Conversation)
+                              {% endif %}
+                          </p>
+
+                          {% if other %}
+                            <p class="text-xs text-gray-400 mt-1">
+                              {% if other.role == "job_seeker" %}
+                                Job Seeker
+                              {% elif other.role == "recruiter" %}
+                                Recruiter
+                              {% else %}
+                                {{ other.role }}
+                              {% endif %}
+                            </p>
+                            {% if other.role == "job_seeker" and other.jobseeker %}
+                                <p class="text-xs text-gray-500">
+                                    {{ other.jobseeker.headline|default:"Job Seeker" }}
+                                </p>
+                            {% elif other.role == "recruiter" and other.recruiter %}
+                                <p class="text-xs text-gray-500">
+                                    {{ other.recruiter.company_name|default:"Recruiter" }}
+                                </p>
+                            {% endif %}
+                          {% endif %}
+
+                          <p class="text-sm text-gray-500 mt-1">
+                              Started {{ convo.created_at|date:"M d, Y H:i" }}
+                          </p>
+                      </div>
+
+                      {% if unread > 0 %}
+                      <span class="inline-flex items-center justify-center text-xs font-bold px-2 py-1 rounded-full bg-red-600 text-white">
+                          {{ unread }} new
+                      </span>
+                      {% endif %}
+                  </div>
+
+              </a>
+              {% endif %}
+
+              {% endwith %}
+          {% endfor %}
+
+      </div>
+
+  {% else %}
+      <p class="text-gray-600 mt-10 text-center">You don’t have any conversations yet.</p>
+  {% endif %}
+
+</div>
+{% endblock %}

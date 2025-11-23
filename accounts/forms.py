@@ -1,14 +1,17 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import User, JobSeekerProfile, RecruiterProfile
+from django.forms import inlineformset_factory
+
+from .models import (
+    User,
+    JobSeekerProfile,
+    RecruiterProfile,
+    Education,
+    Experience,
+)
 
 # -------------------------------------------------------
-# This forms.py was created by Joel Sari, allows to customize Django's built in forms with much more detail,
-# -------------------------------------------------------
-# Extends Django's built-in UserCreationForm
-# - Adds email
-# - Adds role (Job Seeker or Recruiter)
-# - Uses our custom User model
+# SIGNUP FORM
 # -------------------------------------------------------
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(required=True)
@@ -20,22 +23,15 @@ class SignUpForm(UserCreationForm):
 
 
 # -------------------------------------------------------
-# JobSeekerProfileForm
+# JOB SEEKER PROFILE FORM
 # -------------------------------------------------------
-# Lets job seekers update their profile information
-# (headline, skills, education, work experience, privacy setting).
-# -------------------------------------------------------
-from django import forms
-from .models import JobSeekerProfile, RecruiterProfile
-
 class JobSeekerProfileForm(forms.ModelForm):
     class Meta:
         model = JobSeekerProfile
         fields = [
+            "profile_picture",
             "headline",
             "skills",
-            "education",
-            "work_experience",
             "street_address",
             "city",
             "state",
@@ -46,23 +42,95 @@ class JobSeekerProfileForm(forms.ModelForm):
         widgets = {
             "headline": forms.TextInput(attrs={"class": "form-control"}),
             "skills": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-            "education": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-            "work_experience": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
-            "street_address": forms.TextInput(attrs={"class": "form-control", "placeholder": "123 Main St"}),
-            "city": forms.TextInput(attrs={"class": "form-control", "placeholder": "Atlanta"}),
-            "state": forms.TextInput(attrs={"class": "form-control", "placeholder": "Georgia"}),
-            "zip_code": forms.TextInput(attrs={"class": "form-control", "placeholder": "30332"}),
-            "country": forms.TextInput(attrs={"class": "form-control", "placeholder": "USA"}),
+            "street_address": forms.TextInput(attrs={"class": "form-control"}),
+            "city": forms.TextInput(attrs={"class": "form-control"}),
+            "state": forms.TextInput(attrs={"class": "form-control"}),
+            "zip_code": forms.TextInput(attrs={"class": "form-control"}),
+            "country": forms.TextInput(attrs={"class": "form-control"}),
             "is_public": forms.CheckboxInput(attrs={"class": "form-check-input"}),
         }
 
 
 # -------------------------------------------------------
-# RecruiterProfileForm
+# EDUCATION FORM (MULTIPLE ENTRIES)
 # -------------------------------------------------------
-# Lets recruiters update their company information.
+class EducationForm(forms.ModelForm):
+    class Meta:
+        model = Education
+        fields = [
+            "school",
+            "degree",
+            "major",
+            "start_year",
+            "end_year",
+            "currently_studying",
+        ]
+        widgets = {
+            "school": forms.TextInput(attrs={"class": "form-control school-autocomplete"}),
+            "degree": forms.TextInput(attrs={"class": "form-control"}),
+            "major": forms.TextInput(attrs={"class": "form-control"}),
+            "start_year": forms.NumberInput(attrs={"class": "form-control"}),
+            "end_year": forms.NumberInput(attrs={"class": "form-control"}),
+            "currently_studying": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+
+
+# Formset — **multiple education entries**
+EducationFormSet = inlineformset_factory(
+    User,
+    Education,
+    form=EducationForm,
+    extra=1,
+    can_delete=True
+)
+
+
+# -------------------------------------------------------
+# EXPERIENCE FORM (MULTIPLE ENTRIES)
+# -------------------------------------------------------
+class ExperienceForm(forms.ModelForm):
+    class Meta:
+        model = Experience
+        fields = [
+            "title",
+            "company",
+            "start_date",
+            "end_date",
+            "currently_working",
+            "description",
+        ]
+        widgets = {
+            "title": forms.TextInput(attrs={"class": "form-control"}),
+            "company": forms.TextInput(attrs={"class": "form-control"}),
+            "start_date": forms.DateInput(attrs={"class": "form-control", "type": "date"}),
+            "end_date": forms.DateInput(attrs={"class": "form-control", "type": "date"}),
+            "currently_working": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+            "description": forms.Textarea(attrs={"class": "form-control", "rows": 3}),
+        }
+
+
+# Formset — **multiple experience entries**
+ExperienceFormSet = inlineformset_factory(
+    User,
+    Experience,
+    form=ExperienceForm,
+    extra=1,
+    can_delete=True
+)
+
+
+# -------------------------------------------------------
+# RECRUITER PROFILE FORM
 # -------------------------------------------------------
 class RecruiterProfileForm(forms.ModelForm):
     class Meta:
         model = RecruiterProfile
-        fields = ("company_name", "position")
+        fields = [
+            "profile_picture",
+            "company_name",
+            "position",
+        ]
+        widgets = {
+            "company_name": forms.TextInput(attrs={"class": "form-control"}),
+            "position": forms.TextInput(attrs={"class": "form-control"}),
+        }

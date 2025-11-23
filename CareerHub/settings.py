@@ -6,43 +6,46 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from .env
-load_dotenv()
-
-#Getting google maps API KEY through .env file , making sure we maintain security 
-GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
-
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
+# -------------------------------------------------------
+# Load Environment Variables
+# -------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
-
 load_dotenv(BASE_DIR / ".env")
 
-# Static files (global static folder at project root)
-STATIC_URL = 'static/'
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
+GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
+
+# -------------------------------------------------------
+# Paths
+# -------------------------------------------------------
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+# NEW: Media folder (for profile pictures)
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
+# -------------------------------------------------------
+# Auth
+# -------------------------------------------------------
 AUTH_USER_MODEL = "accounts.User"
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# -------------------------------------------------------
+# Security
+# -------------------------------------------------------
 SECRET_KEY = 'django-insecure-54_914(cnuq$$!6=+xewf4mk8mlm!_pa(xe7y23+&8-tlk(ab!'
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = [
     'careerhub-joelsari.pythonanywhere.com',
     'www.careerhub-joelsari.pythonanywhere.com',
-    '127.0.0.1',  # optional for local testing
-    'localhost',  # optional for local testing
+    '127.0.0.1',
+    'localhost',
 ]
 
-
-# Application definition
+# -------------------------------------------------------
+# Installed Apps
+# -------------------------------------------------------
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -50,13 +53,20 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'import_export',
+    'widget_tweaks',
+
+    # Your apps
     'home',
     'accounts',
-    "widget_tweaks",
-    "jobs",
+    'jobs',
+    'messaging',
 ]
 
+# -------------------------------------------------------
+# Middleware
+# -------------------------------------------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -69,6 +79,9 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'CareerHub.urls'
 
+# -------------------------------------------------------
+# Templates
+# -------------------------------------------------------
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -80,6 +93,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'messaging.context_processors.messaging_context',
             ],
         },
     },
@@ -87,8 +101,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'CareerHub.wsgi.application'
 
-
+# -------------------------------------------------------
 # Database
+# -------------------------------------------------------
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -96,11 +111,9 @@ DATABASES = {
     }
 }
 
-#Getting google maps API KEY through .env file , making sure we maintain security 
-GOOGLE_MAPS_API_KEY = os.getenv("GOOGLE_MAPS_API_KEY")
-
-
-# Password validation
+# -------------------------------------------------------
+# Password Validation
+# -------------------------------------------------------
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
@@ -108,27 +121,24 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-
+# -------------------------------------------------------
 # Internationalization
+# -------------------------------------------------------
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-
-# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # -------------------------------------------------------
-# Email Settings (using Gmail SMTP + App Password)
+# Email Settings (Gmail SMTP)
 # -------------------------------------------------------
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-
-# Pull sensitive info from environment variables
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 
