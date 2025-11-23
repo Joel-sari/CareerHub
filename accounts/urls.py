@@ -24,7 +24,7 @@ urlpatterns = [
          views.recruiter_applicants_kanban,
          name="applicant_kanban"),
 
-    # Update applicant status (drag/drop + final decision)
+    # Update applicant status
     path(
         "recruiter/applicant/<int:app_id>/update-status/",
         views.update_applicant_status,
@@ -41,10 +41,13 @@ urlpatterns = [
 
 
     # ---------------------------------------------------
-    # ONBOARDING ROUTES
+    # ONBOARDING & PROFILE EDIT ROUTES
     # ---------------------------------------------------
     path("onboarding/jobseeker/", views.jobseeker_onboarding, name="jobseeker_onboarding"),
     path("onboarding/recruiter/", views.recruiter_onboarding, name="recruiter_onboarding"),
+
+    # NEW — Edit Job Seeker Profile
+    path("jobseeker/edit/", views.jobseeker_edit_profile, name="jobseeker_edit_profile"),
 
 
     # ---------------------------------------------------
@@ -67,13 +70,10 @@ urlpatterns = [
     # ---------------------------------------------------
     path("applications/", views.my_applications, name="my_applications"),
 
-    # ---------------------------------------------------
-    # CANDIDATE SEARCH (Recruiter)
-    # ---------------------------------------------------
-    path("candidates/", views.candidate_list, name="candidate_list"),
-    path("candidates/<int:user_id>/", views.candidate_profile, name="candidate_profile"),
 
-    # Saved search endpoints:
+    # ---------------------------------------------------
+    # CANDIDATE SAVED SEARCH (Recruiter)
+    # ---------------------------------------------------
     path("candidates/saved-searches/create/",
          views.create_candidate_saved_search,
          name="candidate_saved_search_create"),

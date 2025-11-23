@@ -21,6 +21,14 @@ import csv
 from django.http import JsonResponse
 from django.contrib.auth.decorators import user_passes_test
 
+from .models import Education, Experience
+from .forms import (
+    JobSeekerProfileForm,
+    RecruiterProfileForm,
+    EducationFormSet,
+    ExperienceFormSet,
+)
+
 
 # -------------------------------------------------------
 # Sign Up View
@@ -105,28 +113,103 @@ def recruiter_dashboard(request):
 # -------------------------------------------------------
 @login_required
 def jobseeker_onboarding(request):
-    form = JobSeekerProfileForm(
+    profile = request.user.jobseeker
+
+    profile_form = JobSeekerProfileForm(
         request.POST or None,
-        instance=getattr(request.user, "jobseeker", None)
+        request.FILES or None,
+        instance=profile
     )
-    if request.method == "POST" and form.is_valid():
-        profile = form.save(commit=False)
-        profile.user = request.user
-        profile.save()
-        return redirect("jobseeker_dashboard")
+
+    edu_formset = EducationFormSet(
+        request.POST or None,
+        queryset=Education.objects.filter(user=request.user)
+    )
+
+    exp_formset = ExperienceFormSet(
+        request.POST or None,
+        queryset=Experience.objects.filter(user=request.user)
+    )
+
+    if request.method == "POST":
+        if profile_form.is_valid() and edu_formset.is_valid() and exp_formset.is_valid():
+            profile_form.save()
+
+            # Save all education entries
+            educations = edu_formset.save(commit=False)
+            for edu in educations:
+                edu.user = request.user
+                edu.save()
+
+            # Save all experience entries
+            experiences = exp_formset.save(commit=False)
+            for exp in experiences:
+                exp.user = request.user
+                exp.save()
+
+            return redirect("jobseeker_dashboard")
 
     return render(request, "accounts/jobseeker_profile_form.html", {
-        "form": form,
-        "title": "Complete your Job Seeker profile"
+        "profile_form": profile_form,
+        "edu_formset": edu_formset,
+        "exp_formset": exp_formset,
+        "title": "Complete your Job Seeker profile",
     })
 
+
+@login_required
+def jobseeker_edit_profile(request):
+    profile = request.user.jobseeker
+
+    profile_form = JobSeekerProfileForm(
+        request.POST or None,
+        request.FILES or None,
+        instance=profile
+    )
+
+    edu_formset = EducationFormSet(
+        request.POST or None,
+        queryset=Education.objects.filter(user=request.user)
+    )
+
+    exp_formset = ExperienceFormSet(
+        request.POST or None,
+        queryset=Experience.objects.filter(user=request.user)
+    )
+
+    if request.method == "POST":
+        if profile_form.is_valid() and edu_formset.is_valid() and exp_formset.is_valid():
+            profile_form.save()
+
+            # Save Education
+            educations = edu_formset.save(commit=False)
+            for edu in educations:
+                edu.user = request.user
+                edu.save()
+
+            # Save Experience
+            experiences = exp_formset.save(commit=False)
+            for exp in experiences:
+                exp.user = request.user
+                exp.save()
+
+            return redirect("jobseeker_dashboard")
+
+    return render(request, "accounts/jobseeker_profile_form.html", {
+        "profile_form": profile_form,
+        "edu_formset": edu_formset,
+        "exp_formset": exp_formset,
+        "title": "Edit Your Profile",
+    })
 
 @login_required
 def recruiter_onboarding(request):
     form = RecruiterProfileForm(
         request.POST or None,
-        instance=getattr(request.user, "recruiter", None)
+        request.FILES or None,
+        instance=request.user.recruiter
     )
+
     if request.method == "POST" and form.is_valid():
         profile = form.save(commit=False)
         profile.user = request.user
