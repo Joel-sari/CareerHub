@@ -30,6 +30,7 @@ class JobSeekerProfileForm(forms.ModelForm):
         model = JobSeekerProfile
         fields = [
             "profile_picture",
+            "full_name",
             "headline",
             "skills",
             "street_address",

@@ -102,7 +102,7 @@
   </div>
 </nav>
 
-<!-- SINGLE, CORRECT HUD (KEEP THIS ONE) -->
+<!-- Profile HUD -->
 <div id="profile-hud"
      style="opacity: 0; pointer-events: none"
      class="fixed top-[70px] right-6 w-80 bg-white border border-[#2b3853]/40 rounded-lg shadow-xl p-5 z-[999999] transition-opacity">
@@ -118,9 +118,24 @@
       {% endif %}
     </div>
 
-    <div>
-      <p class="font-bold">{{ user.get_full_name|default:user.username }}</p>
-      <p class="text-gray-600 text-sm">{{ user.email }}</p>
+    <!-- Name + username + email -->
+    <div class="flex flex-col leading-tight">
+
+      <!-- Full Name -->
+      <p class="font-bold text-base text-[#233250]">
+        {{ user.jobseeker.full_name|default:user.username }}
+      </p>
+
+      <!-- Username (ALWAYS display) -->
+      <p class="text-sm text-gray-500 -mt-0.5">
+        @{{ user.username }}
+      </p>
+
+      <!-- Email -->
+      <p class="text-sm text-gray-600">
+        {{ user.email }}
+      </p>
+
     </div>
 
   </div>
@@ -138,7 +153,6 @@
       <li><a href="{% url 'messaging:inbox' %}" class="font-medium hover:text-[#42547b]">Messages</a></li>
     {% endif %}
 
-    <li class="text-gray-400">Notifications</li>
   </ul>
 
   <hr class="my-3" />
