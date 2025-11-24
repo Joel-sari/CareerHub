@@ -7,7 +7,7 @@
   <div class="grid grid-cols-3 gap-20 gap-x-30 w-[95%] mx-auto items-start">
 
     <!-- ================= LEFT: Profile ================= -->
-    <div class="flex flex-col items-center">
+    <div class="flex flex-col items-center border-r border-gray-400 pr-10">
       <!-- Greeting -->
       <h1 class="text-3xl font-semibold text-[#243251] self-start mb-10">
         Welcome back, {{ user.username|capfirst }}
@@ -30,40 +30,42 @@
     </div>
 
     <!-- ================= MIDDLE COLUMN ================= -->
-    <div class="flex flex-col gap-12">
+    <div class="flex flex-col gap-12 border-r border-gray-400 px-10">
 
       <!-- === CARD 1: View Applicants === -->
       <div>
         <h2 class="text-2xl font-semibold text-[#243251] mb-6">View Applicants</h2>
 
-        <div class="border border-black/30 rounded-[35px] p-6 min-h-[300px] flex flex-col justify-between shadow-sm bg-white">
+        <div class="border border-black/30 rounded-[35px] p-6 min-h-[320px] flex flex-col justify-between shadow-sm bg-white">
           <div>
             <p class="text-xl font-medium text-[#243251] mb-5">Applicants</p>
 
             <!-- Small preview of recent applicants -->
-            {% if applications %}
-              {% for app in applications|slice:":5" %}
-                <div class="grid grid-cols-3 gap-x-8 items-center py-2 border-b border-gray-100">
-                  <p class="text-sm text-black">{{ app.applicant.username|capfirst }}</p>
-                  <p class="text-[12px] text-gray-700 truncate">{{ app.job.title }}</p>
-                  <p class="text-[13px] font-medium
-                    {% if app.final_decision == 'hired' %}text-green-600
-                    {% elif app.final_decision == 'rejected' %}text-red-600
-                    {% elif app.status == 'review' %}text-yellow-600
-                    {% elif app.status == 'applied' %}text-blue-600
-                    {% else %}text-gray-500
-                    {% endif %}">
-                    {% if app.final_decision %}
-                      {{ app.final_decision|title }}
-                    {% else %}
-                      {{ app.status|title }}
-                    {% endif %}
-                  </p>
-                </div>
-              {% endfor %}
-            {% else %}
-              <p class="text-gray-400 mt-5 text-center">No applicants yet.</p>
-            {% endif %}
+            <div class="max-h-48 overflow-y-auto pr-1 space-y-1">
+              {% if applications %}
+                {% for app in applications|slice:":5" %}
+                  <div class="grid grid-cols-3 gap-x-8 items-center py-2 border-b border-gray-100">
+                    <p class="text-sm text-black">{{ app.applicant.username|capfirst }}</p>
+                    <p class="text-[12px] text-gray-700 truncate">{{ app.job.title }}</p>
+                    <p class="text-[13px] font-medium
+                      {% if app.final_decision == 'hired' %}text-green-600
+                      {% elif app.final_decision == 'rejected' %}text-red-600
+                      {% elif app.status == 'review' %}text-yellow-600
+                      {% elif app.status == 'applied' %}text-blue-600
+                      {% else %}text-gray-500
+                      {% endif %}">
+                      {% if app.final_decision %}
+                        {{ app.final_decision|title }}
+                      {% else %}
+                        {{ app.status|title }}
+                      {% endif %}
+                    </p>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <p class="text-gray-400 mt-5 text-center">No applicants yet.</p>
+              {% endif %}
+            </div>
           </div>
 
           <!-- Button to Kanban -->
@@ -96,23 +98,25 @@
       <div>
         <h2 class="text-2xl font-semibold text-[#243251] mb-6">Saved Candidate Searches</h2>
 
-        <div class="border border-black/30 rounded-[35px] p-6 min-h-[200px] flex flex-col justify-between shadow-sm bg-white">
+        <div class="border border-black/30 rounded-[35px] p-6 min-h-[260px] flex flex-col justify-between shadow-sm bg-white">
           {% if saved_searches %}
-            <ul class="space-y-3">
-              {% for search in saved_searches %}
-                <li class="flex items-center justify-between">
-                  <a href="{% url 'candidate_saved_search_run' search.id %}"
-                     class="text-sm text-[#42547c] hover:underline">
-                    {{ search.name }}
-                  </a>
-                  {% if search.last_run_at %}
-                    <span class="text-[11px] text-gray-400">
-                      Last run: {{ search.last_run_at|date:"M j, g:i a" }}
-                    </span>
-                  {% endif %}
-                </li>
-              {% endfor %}
-            </ul>
+            <div class="max-h-48 overflow-y-auto pr-1">
+              <ul class="space-y-3">
+                {% for search in saved_searches %}
+                  <li class="flex items-center justify-between">
+                    <a href="{% url 'candidate_saved_search_run' search.id %}"
+                       class="text-sm text-[#42547c] hover:underline">
+                      {{ search.name }}
+                    </a>
+                    {% if search.last_run_at %}
+                      <span class="text-[11px] text-gray-400">
+                        Last run: {{ search.last_run_at|date:"M j, g:i a" }}
+                      </span>
+                    {% endif %}
+                  </li>
+                {% endfor %}
+              </ul>
+            </div>
           {% else %}
             <p class="text-gray-400 text-sm">
               No saved searches yet. Go to the Candidate Directory and click “Save Search”.
@@ -140,7 +144,7 @@
       </div>
 
       <!-- Job Cards -->
-      <div class="flex flex-col gap-6 items-center">
+      <div class="flex flex-col gap-6 items-center max-h-80 overflow-y-auto pr-1">
         {% for job in jobs %}
           <div class="w-[90%] p-6 rounded-[30px] border border-black/20 shadow-sm bg-white">
             <p class="text-xl font-medium mb-1">{{ job.title }}</p>
@@ -152,7 +156,7 @@
           </div>
         {% empty %}
           <p class="text-gray-400 text-center">No job listings yet.</p>
-        {% endfor %}
+        {% endfor %}ss
       </div>
 
       <!-- Manage Listings -->
@@ -168,43 +172,45 @@
       <div class="mt-12">
         <h2 class="text-2xl font-semibold text-[#243251] mb-6">Recommended Candidates</h2>
 
-        <div class="border border-black/30 rounded-[35px] p-6 min-h-[220px] flex flex-col justify-between shadow-sm bg-white">
+        <div class="border border-black/30 rounded-[35px] p-6 min-h-[260px] flex flex-col justify-between shadow-sm bg-white">
           {% if recommended_candidates %}
-          <ul class="space-y-0">
-            {% for candidate in recommended_candidates %}
-              <li class="border-t border-gray-200 pt-4 first:border-t-0 first:pt-0">
-                <a href="{% url 'candidate_profile' candidate.user.id %}"
-                   class="block">
-                  <!-- Top row: name + match percentage -->
-                  <div class="flex items-center justify-between">
-                    <div>
-                      <p class="text-base font-semibold text-[#243251]">
-                        {{ candidate.user.username|capfirst }}
-                      </p>
-                      {% if candidate.user.jobseeker.headline %}
-                        <p class="text-sm text-gray-500">
-                          {{ candidate.user.jobseeker.headline }}
+          <div class="max-h-56 overflow-y-auto pr-1">
+            <ul class="space-y-0">
+              {% for candidate in recommended_candidates %}
+                <li class="border-t border-gray-400 pt-4 first:border-t-0 first:pt-0">
+                  <a href="{% url 'candidate_profile' candidate.user.id %}"
+                     class="block">
+                    <!-- Top row: name + match percentage -->
+                    <div class="flex items-center justify-between">
+                      <div>
+                        <p class="text-base font-semibold text-[#243251]">
+                          {{ candidate.user.username|capfirst }}
                         </p>
+                        {% if candidate.user.jobseeker.headline %}
+                          <p class="text-sm text-gray-500">
+                            {{ candidate.user.jobseeker.headline }}
+                          </p>
+                        {% endif %}
+                      </div>
+
+                      {% if candidate.match_percentage %}
+                        <span class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-[#efce63] text-[#243251] text-xs font-semibold">
+                          {{ candidate.match_percentage }}% match
+                        </span>
                       {% endif %}
                     </div>
 
-                    {% if candidate.match_percentage %}
-                      <span class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-[#efce63] text-[#243251] text-xs font-semibold">
-                        {{ candidate.match_percentage }}% match
-                      </span>
+                    <!-- Optional: quick education/degree line if present -->
+                    {% if candidate.education %}
+                      <p class="text-xs text-gray-500 mt-1 truncate">
+                        {{ candidate.education }}
+                      </p>
                     {% endif %}
-                  </div>
-
-                  <!-- Optional: quick education/degree line if present -->
-                  {% if candidate.education %}
-                    <p class="text-xs text-gray-500 mt-1 truncate">
-                      {{ candidate.education }}
-                    </p>
-                  {% endif %}
-                </a>
-              </li>
-            {% endfor %}
-          </ul>
+                  </a>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
           {% else %}
             <p class="text-sm text-gray-500">
               You don't have any recommended candidates yet. Once you set your preferences and candidates match them,

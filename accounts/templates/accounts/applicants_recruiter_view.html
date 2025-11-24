@@ -22,7 +22,7 @@
                 <a href="{% url 'candidate_profile' app.applicant.id %}">
                     <p class="font-semibold text-lg">{{ app.applicant.username }}</p>
                     <p class="text-sm text-gray-600">{{ app.job.title }}</p>
-                    <span class="text-xs text-blue-600 font-medium">Applied</span>
+                    <span class="status-label text-xs text-blue-600 font-medium">Applied</span>
                 </a>
             </div>
 
@@ -51,7 +51,7 @@
                 <a href="{% url 'candidate_profile' app.applicant.id %}">
                     <p class="font-semibold text-lg">{{ app.applicant.username }}</p>
                     <p class="text-sm text-gray-600">{{ app.job.title }}</p>
-                    <span class="text-xs text-yellow-600 font-medium">In Review</span>
+                    <span class="status-label text-xs text-yellow-600 font-medium">In Review</span>
                 </a>
             </div>
 
@@ -78,7 +78,7 @@
                 <a href="{% url 'candidate_profile' app.applicant.id %}">
                     <p class="font-semibold text-lg">{{ app.applicant.username }}</p>
                     <p class="text-sm text-gray-600">{{ app.job.title }}</p>
-                    <span class="text-xs text-gray-600 font-medium">Closed</span>
+                    <span class="status-label text-xs text-gray-600 font-medium">Closed</span>
                 </a>
             </div>
 
@@ -104,7 +104,7 @@
                 <a href="{% url 'candidate_profile' app.applicant.id %}">
                     <p class="font-semibold text-lg">{{ app.applicant.username }}</p>
                     <p class="text-sm text-gray-600">{{ app.job.title }}</p>
-                    <span class="text-xs text-green-600 font-medium">Hired</span>
+                    <span class="status-label text-xs text-green-600 font-medium">Hired</span>
                 </a>
             </div>
 
@@ -161,19 +161,21 @@ function drop(ev) {
     let card = document.querySelector(`[data-id='${appId}']`);
     column.appendChild(card);
 
-    let statusLabel = card.querySelector("span");
-
-    if (newStatus === "applied") {
-        label.textContent = "Applied";
-        label.className = "status-label text-xs font-medium text-blue-600";
-    }
-    else if (newStatus === "review") {
-        label.textContent = "In Review";
-        label.className = "status-label text-xs font-medium text-yellow-600";
-    }
-    else if (newStatus === "closed") {
-        label.textContent = "Closed";
-        label.className = "status-label text-xs font-medium text-gray-600";
+    const label = card.querySelector('.status-label');
+    if (label) {
+        if (newStatus === 'applied') {
+            label.textContent = 'Applied';
+            label.className = 'status-label text-xs font-medium text-blue-600';
+        } else if (newStatus === 'review') {
+            label.textContent = 'In Review';
+            label.className = 'status-label text-xs font-medium text-yellow-600';
+        } else if (newStatus === 'closed') {
+            label.textContent = 'Closed';
+            label.className = 'status-label text-xs font-medium text-gray-600';
+        } else if (newStatus === 'hired') {
+            label.textContent = 'Hired';
+            label.className = 'status-label text-xs font-medium text-green-600';
+        }
     }
 
     fetch(`/accounts/recruiter/applicant/${appId}/update-status/`, {

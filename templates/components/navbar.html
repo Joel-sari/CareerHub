@@ -246,28 +246,64 @@
 
 </div>
 
-<!-- JS -->
 <script>
-  (function () {
+  (function attachProfileHud() {
+    // Try to get elements immediately
     const btn = document.getElementById("profile-btn");
     const hud = document.getElementById("profile-hud");
 
-    if (!btn || !hud) return;
+    // If either element is missing, wait until DOM is ready
+    if (!btn || !hud) {
+      document.addEventListener("DOMContentLoaded", function () {
+        const lateBtn = document.getElementById("profile-btn");
+        const lateHud = document.getElementById("profile-hud");
+        if (!lateBtn || !lateHud) return; // still nothing, bail out silently
 
-    function toggleHud(e) {
-      e.stopPropagation();
-      const hidden = hud.style.opacity === "0" || hud.style.opacity === "";
-      hud.style.opacity = hidden ? "1" : "0";
-      hud.style.pointerEvents = hidden ? "auto" : "none";
+        initProfileHud(lateBtn, lateHud);
+      }, { once: true });
+      return;
     }
 
+    // If we're here, elements exist now – wire them up immediately
+    initProfileHud(btn, hud);
+  })();
+
+  function initProfileHud(btn, hud) {
+    let isOpen = false;
+
+    function showHud() {
+      hud.style.opacity = "1";
+      hud.style.pointerEvents = "auto";
+      isOpen = true;
+    }
+
+    function hideHud() {
+      hud.style.opacity = "0";
+      hud.style.pointerEvents = "none";
+      isOpen = false;
+    }
+
+    function toggleHud(event) {
+      event.stopPropagation();
+      if (isOpen) {
+        hideHud();
+      } else {
+        showHud();
+      }
+    }
+
+    // Click on avatar toggles the HUD
     btn.addEventListener("click", toggleHud);
 
-    document.addEventListener("click", (e) => {
-      if (!hud.contains(e.target) && !btn.contains(e.target)) {
-        hud.style.opacity = "0";
-        hud.style.pointerEvents = "none";
+    // Click anywhere else on the page closes the HUD if open
+    document.addEventListener("click", function (event) {
+      if (
+        isOpen &&
+        !hud.contains(event.target) &&
+        !btn.contains(event.target)
+      ) {
+        hideHud();
       }
     });
-  })();
+  }
 </script>
