@@ -15,9 +15,15 @@
 
       <!-- Profile Info -->
       <div class="flex flex-col items-center mt-6">
-        <img src="{% static 'images/icon_profile.png' %}"
-             class="w-[85px] h-[85px] rounded-full border border-gray-300 object-cover shadow-sm mb-3"
-             alt="Profile Picture">
+        {% if user.recruiter.profile_picture %}
+  <img src="{{ user.recruiter.profile_picture.url }}"
+       class="w-[85px] h-[85px] rounded-full border border-gray-300 object-cover shadow-sm mb-3"
+       alt="Profile Picture">
+{% else %}
+  <img src="{% static 'images/icon_profile.png' %}"
+       class="w-[85px] h-[85px] rounded-full border border-gray-300 object-cover shadow-sm mb-3"
+       alt="Default Profile">
+{% endif %}
         <p class="text-lg font-semibold text-[#243251]">{{ user.username|capfirst }}</p>
         <p class="text-sm text-gray-500 mt-1">Recruiter</p>
       </div>

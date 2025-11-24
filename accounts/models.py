@@ -31,6 +31,8 @@ class JobSeekerProfile(models.Model):
         related_name='jobseeker'
     )
 
+    full_name = models.CharField(max_length=255, blank=True)   
+    
     profile_picture = models.ImageField(upload_to="profile_pics/", null=True, blank=True)
 
     headline = models.CharField(max_length=255, blank=True)

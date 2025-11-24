@@ -35,21 +35,53 @@
       </main>
     </div>
 
-    <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const btn = document.getElementById("profile-btn");
-      const hud = document.getElementById("profile-hud");
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("profile-btn");
+  const hud = document.getElementById("profile-hud");
 
-      if (btn && hud) {
-        btn.addEventListener("click", (e) => {
-          e.stopPropagation();
-          hud.classList.toggle("hidden");
-        });
+  const notifBtn = document.getElementById("notifications-toggle");
+  const notifPanel = document.getElementById("notifications-panel");
 
-        document.addEventListener("click", () => hud.classList.add("hidden"));
-      }
+  // --- Notifications Toggle ---
+  if (notifBtn && notifPanel) {
+    notifBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      notifPanel.classList.toggle("hidden");
     });
-    </script>
+
+    notifPanel.addEventListener("click", (e) => e.stopPropagation());
+  }
+
+  // --- Profile HUD Toggle ---
+  if (btn && hud) {
+    btn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      hud.classList.toggle("hidden");
+    });
+
+    hud.addEventListener("click", (e) => e.stopPropagation());
+  }
+
+  // --- Global outside click handler ---
+  document.addEventListener("click", (e) => {
+    // Only close HUD if click is outside both HUD and btn
+    if (btn && hud && !hud.contains(e.target) && e.target !== btn) {
+      hud.classList.add("hidden");
+    }
+
+    // Only close notifications if click is outside both panel and btn
+    if (
+      notifBtn &&
+      notifPanel &&
+      !notifPanel.contains(e.target) &&
+      e.target !== notifBtn
+    ) {
+      notifPanel.classList.add("hidden");
+    }
+  });
+});
+</script>
 
   </body>
 </html>
