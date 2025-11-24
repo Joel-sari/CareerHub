@@ -22,3 +22,6 @@ Thumbs.db
 
 #No pycharm files come thru 
 .idea_
+
+#Media files
+media/

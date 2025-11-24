@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
+
 from django.forms import inlineformset_factory
 
 from .models import (
@@ -8,6 +9,7 @@ from .models import (
     RecruiterProfile,
     Education,
     Experience,
+    RecruiterPreferences,
 )
 
 # -------------------------------------------------------
@@ -133,4 +135,33 @@ class RecruiterProfileForm(forms.ModelForm):
         widgets = {
             "company_name": forms.TextInput(attrs={"class": "form-control"}),
             "position": forms.TextInput(attrs={"class": "form-control"}),
+        }
+
+
+
+# -------------------------------------------------------
+# RECRUITER PREFERENCES FORM
+# -------------------------------------------------------
+class RecruiterPreferencesForm(forms.ModelForm):
+    class Meta:
+        model = RecruiterPreferences
+        fields = [
+            "preferred_degree",
+            "preferred_major",
+            "graduation_status",       # NEW
+            "preferred_class_level",   # NEW
+            "min_experience_years",
+            "preferred_universities",
+        ]
+        labels = {
+            "preferred_degree": "Preferred degree",
+            "preferred_major": "Preferred major",
+            "graduation_status": "Graduation status",
+            "preferred_class_level": "Preferred class year (optional)",
+            "min_experience_years": "Minimum years of experience",
+            "preferred_universities": "Preferred universities (comma-separated)",
+        }
+        help_texts = {
+            "graduation_status": "Do you want current students, graduates, or anyone?",
+            "preferred_class_level": "If you care about class year (e.g., juniors), pick it here.",
         }

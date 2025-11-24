@@ -11,22 +11,23 @@ from django.db import models
 from jobs.models import Job, Application
 from django.utils import timezone
 from urllib.parse import urlencode
+from django.core.exceptions import PermissionDenied
 
-from .models import User, JobSeekerProfile, CandidateSavedSearch
-
-from .forms import SignUpForm, JobSeekerProfileForm, RecruiterProfileForm
-from .models import User, JobSeekerProfile
+from .models import User, JobSeekerProfile, Education, Experience, RecruiterPreferences, CandidateSavedSearch ,Education, Experience
+import datetime
 
 import csv
 from django.http import JsonResponse
 from django.contrib.auth.decorators import user_passes_test
 
-from .models import Education, Experience
+
 from .forms import (
     JobSeekerProfileForm,
     RecruiterProfileForm,
     EducationFormSet,
     ExperienceFormSet,
+    SignUpForm,
+    RecruiterPreferencesForm
 )
 
 
@@ -99,11 +100,16 @@ def recruiter_dashboard(request):
     # Saved candidate searches
     saved_searches = CandidateSavedSearch.objects.filter(owner=user)[:5]
 
+    # Recommended candidates (example logic — latest public profiles)
+    recommended_candidates = get_recommended_candidates_for_recruiter(request.user)
+
+
     return render(request, "accounts/recruiter_dashboard.html", {
         "user": user,
         "jobs": jobs,
         "applications": applications,
         "saved_searches": saved_searches,
+        "recommended_candidates": recommended_candidates,
     })
 
 
@@ -201,7 +207,6 @@ def jobseeker_edit_profile(request):
         "exp_formset": exp_formset,
         "title": "Edit Your Profile",
     })
-
 @login_required
 def recruiter_onboarding(request):
     form = RecruiterProfileForm(
@@ -214,13 +219,13 @@ def recruiter_onboarding(request):
         profile = form.save(commit=False)
         profile.user = request.user
         profile.save()
-        return redirect("recruiter_dashboard")
+        # After completing profile, go to preferences page
+        return redirect("recruiter_preferences")
 
     return render(request, "accounts/recruiter_profile_form.html", {
         "form": form,
         "title": "Complete your Recruiter profile"
     })
-
 
 @login_required
 def my_applications(request):
@@ -619,3 +624,244 @@ def export_users_csv(request):
         writer.writerow([user.id, user.username, user.email, user.role, user.is_admin])
 
     return response
+#-------------------------------------------------------
+# Recruiter Preferences View
+#-------------------------------------------------------
+@login_required
+def recruiter_preferences_view(request):
+    """
+    Allows a recruiter to configure what kind of candidates they want:
+    - degree / major
+    - graduation year range
+    - experience range
+    - preferred universities
+
+    Only users with role == RECRUITER should be allowed here.
+    """
+    if getattr(request.user, "role", None) != User.RECRUITER:
+        raise PermissionDenied("Only recruiters can edit candidate preferences.")
+
+    # Ensure preferences object exists for this recruiter
+    prefs, _ = RecruiterPreferences.objects.get_or_create(recruiter=request.user)
+
+    if request.method == "POST":
+        form = RecruiterPreferencesForm(request.POST, instance=prefs)
+        if form.is_valid():
+            form.save()
+            # After saving, send them back to recruiter dashboard (or wherever)
+            return redirect("recruiter_dashboard")
+    else:
+        form = RecruiterPreferencesForm(instance=prefs)
+
+    return render(request, "accounts/recruiter_preferences.html", {
+        "form": form,
+        "title": "Candidate Preferences",
+    })
+
+#-------------------------------------------------------
+# Functions for Recommended Candidates
+#-------------------------------------------------------
+def _estimate_experience_years(user):
+    """
+    Very rough estimate of total years of experience based on Experience entries.
+    We just sum (end_date - start_date) for all experiences.
+
+    If dates are missing, we simply skip those entries.
+    """
+    experiences = user.experiences.all()
+    total_days = 0
+
+    for exp in experiences:
+        if exp.start_date:
+            # If end_date is missing but currently_working is True, use today
+            end_date = exp.end_date or (datetime.date.today() if exp.currently_working else None)
+            if end_date:
+                total_days += (end_date - exp.start_date).days
+
+    return round(total_days / 365.0, 1) if total_days > 0 else 0.0
+def get_recommended_candidates_for_recruiter(recruiter, max_results=10):
+    if getattr(recruiter, "role", None) != User.RECRUITER:
+        return []
+
+    try:
+        prefs = recruiter.recruiter_preferences
+    except RecruiterPreferences.DoesNotExist:
+        return []
+
+    candidates_qs = (
+        User.objects.filter(
+            role=User.JOB_SEEKER,
+            jobseeker__is_public=True,
+        )
+        .select_related("jobseeker")
+        .prefetch_related("educations", "experiences")
+    )
+
+    preferred_universities = []
+    if prefs.preferred_universities:
+        preferred_universities = [
+            s.strip().lower()
+            for s in prefs.preferred_universities.split(",")
+            if s.strip()
+        ]
+
+    # ---------- how many criteria did recruiter ACTUALLY use? ----------
+    criteria_used = 0
+    if prefs.preferred_degree:
+        criteria_used += 1
+    if prefs.preferred_major:
+        criteria_used += 1
+    if prefs.graduation_status != "any":
+        criteria_used += 1
+    if prefs.preferred_class_level != "any":
+        criteria_used += 1
+    if prefs.min_experience_years is not None:
+        criteria_used += 1
+    if preferred_universities:
+        criteria_used += 1
+
+    if criteria_used == 0:
+        # nothing configured → don’t pretend everything is “100% match”
+        return []
+
+    results = []
+
+    for candidate in candidates_qs:
+        profile = getattr(candidate, "jobseeker", None)
+        if not profile:
+            continue
+
+        educations = list(candidate.educations.all())
+        experiences = list(candidate.experiences.all())
+
+        # pick "top" education (latest by end_year then start_year)
+        top_education = None
+        if educations:
+            educations_sorted = sorted(
+                educations,
+                key=lambda e: (e.end_year or 0, e.start_year or 0),
+                reverse=True,
+            )
+            top_education = educations_sorted[0]
+
+        # grad status + class level for this candidate
+        grad_status, class_level = _compute_grad_status_and_class(top_education)
+
+        match_score = 0
+        matched_degree = matched_major = False
+        matched_grad_status = matched_class_level = False
+        matched_experience = matched_university = False
+
+        # ---------- DEGREE ----------
+        if prefs.preferred_degree:
+            for edu in educations:
+                if edu.degree and prefs.preferred_degree.lower() in edu.degree.lower():
+                    match_score += 1
+                    matched_degree = True
+                    break
+
+        # ---------- MAJOR ----------
+        if prefs.preferred_major:
+            for edu in educations:
+                if edu.major and prefs.preferred_major.lower() in edu.major.lower():
+                    match_score += 1
+                    matched_major = True
+                    break
+
+        # ---------- GRADUATION STATUS (student vs graduate) ----------
+        if prefs.graduation_status != "any":
+            if grad_status == prefs.graduation_status:
+                match_score += 1
+                matched_grad_status = True
+
+        # ---------- CLASS LEVEL (freshman / sophomore / junior / senior) ----------
+        if prefs.preferred_class_level != "any":
+            if class_level == prefs.preferred_class_level:
+                match_score += 1
+                matched_class_level = True
+
+        # ---------- MIN EXPERIENCE ----------
+        exp_years = _estimate_experience_years(candidate)
+        if prefs.min_experience_years is not None:
+            if exp_years >= float(prefs.min_experience_years):
+                match_score += 1
+                matched_experience = True
+
+        # ---------- PREFERRED UNIVERSITIES ----------
+        if preferred_universities:
+            for edu in educations:
+                if edu.school:
+                    school_name = edu.school.lower()
+                    if any(pref in school_name for pref in preferred_universities):
+                        match_score += 1
+                        matched_university = True
+                        break
+
+        # if we didn’t match even one criterion, skip
+        if match_score == 0:
+            continue
+
+        # how many individual criteria we actually matched
+        matched_count = sum(
+            [
+                matched_degree,
+                matched_major,
+                matched_grad_status,
+                matched_class_level,
+                matched_experience,
+                matched_university,
+            ]
+        )
+        match_percentage = int(round((matched_count / criteria_used) * 100))
+
+        results.append(
+            {
+                "user": candidate,
+                "profile": profile,
+                "top_education": top_education,
+                "experience_years": exp_years,
+                "match_score": match_score,
+                "match_percentage": match_percentage,
+            }
+        )
+
+    # sort best matches first
+    results.sort(key=lambda item: item["match_score"], reverse=True)
+    return results[:max_results]
+
+#-------------------------------------------------------
+# Helper to compute graduation status and class level
+#-------------------------------------------------------
+def _compute_grad_status_and_class(education):
+    """
+    Given a single Education object (the 'top' education),
+    return (grad_status, class_level) where:
+      grad_status ∈ {"student", "graduate"}
+      class_level ∈ {"freshman", "sophomore", "junior", "senior", "graduate"}
+    """
+    if not education:
+        return "graduate", "graduate"  # fallback
+
+    current_year = datetime.date.today().year
+    start = education.start_year
+    end = education.end_year
+
+    # If they already finished (end year in the past) → graduate
+    if end and end < current_year:
+        return "graduate", "graduate"
+
+    # If still in school and we have a start year, infer class from years since start
+    if start and start <= current_year:
+        years_since_start = current_year - start
+        if years_since_start <= 0:
+            class_level = "freshman"
+        elif years_since_start == 1:
+            class_level = "sophomore"
+        elif years_since_start == 2:
+            class_level = "junior"     # your example: start=2023, now=2025 → junior
+        else:
+            class_level = "senior"
+        return "student", class_level
+
+    # If we can’t decide, treat as graduate for safety
+    return "graduate", "graduate"

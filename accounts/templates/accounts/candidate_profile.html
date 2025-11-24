@@ -15,13 +15,19 @@
       <p><strong>Work Experience:</strong> {{ candidate.jobseeker.work_experience|default:"—" }}</p>
     </div>
 
-    <div class="mt-8 flex gap-4">
+    <div class="mt-8 flex gap-10">
       <a href="{% url 'email_candidate' candidate.id %}"
-         class="btn-primary text-[16px] px-8 py-2">
+         class="btn-primary bg-[#F4C542] hover:bg-[#e0b53b] text-[#243251] text-[16px] px-8 py-2 border-none">
          Email Candidate
       </a>
+      <!-- NEW: message candidate inside CareerHub -->
+      <a href="{% url 'messaging:start_conversation' candidate.id %}"
+         class="btn-primary bg-[#F4C542] hover:bg-[#e0b53b] text-[#243251] text-[16px] px-8 py-2 border-none">
+         Message in CareerHub
+      </a>
+
       <a href="{% url 'candidate_list' %}"
-         class="btn-secondary text-[16px] px-8 py-2">
+         class="btn-secondary bg-[#F4C542] hover:bg-[#e0b53b] text-[#243251] text-[16px] px-8 py-2 border-none">
         ← Back to Directory
       </a>
     </div>
