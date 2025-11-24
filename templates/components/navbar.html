@@ -85,18 +85,20 @@
       </div>
     </div>
 
-    <!-- Profile Button -->
-    <div class="relative">
-      <button id="profile-btn"
-              class="w-8 h-8 rounded-full bg-[#d9d9d9] overflow-hidden border-2 border-[#efce63]">
-        
-        {% if user.is_authenticated and user.role == 'job_seeker' and user.jobseeker.profile_picture %}
-          <img src="{{ user.jobseeker.profile_picture.url }}" class="w-full h-full object-cover" />
-        {% else %}
-          <img src="{% static 'images/icon_profile.png' %}" class="w-full h-full object-cover" />
-        {% endif %}
-      
-      </button>
+    <button id="profile-btn"
+        class="w-8 h-8 rounded-full overflow-hidden border-2 border-[#efce63] bg-[#d9d9d9]">
+
+    {% if user.role == "job_seeker" and user.jobseeker.profile_picture %}
+        <img src="{{ user.jobseeker.profile_picture.url }}" class="w-full h-full object-cover">
+
+    {% elif user.role == "recruiter" and user.recruiter.profile_picture %}
+        <img src="{{ user.recruiter.profile_picture.url }}" class="w-full h-full object-cover">
+
+    {% else %}
+        <img src="{% static 'images/icon_profile.png' %}" class="w-full h-full object-cover">
+    {% endif %}
+
+</button>
     </div>
 
   </div>
@@ -111,12 +113,17 @@
 
     <!-- Profile Image -->
     <div class="w-12 h-12 rounded-full overflow-hidden border-2 border-[#efce63] bg-gray-200">
-      {% if user.is_authenticated and user.role == "job_seeker" and user.jobseeker.profile_picture %}
-        <img src="{{ user.jobseeker.profile_picture.url }}" class="w-full h-full object-cover" />
-      {% else %}
-        <img src="{% static 'images/icon_profile.png' %}" class="w-full h-full object-cover" />
-      {% endif %}
-    </div>
+
+    {% if user.role == "job_seeker" and user.jobseeker.profile_picture %}
+        <img src="{{ user.jobseeker.profile_picture.url }}" class="w-full h-full object-cover">
+
+    {% elif user.role == "recruiter" and user.recruiter.profile_picture %}
+        <img src="{{ user.recruiter.profile_picture.url }}" class="w-full h-full object-cover">
+
+    {% else %}
+        <img src="{% static 'images/icon_profile.png' %}" class="w-full h-full object-cover">
+    {% endif %}
+</div>
 
     <!-- Name + username + email -->
     <div class="flex flex-col leading-tight">
