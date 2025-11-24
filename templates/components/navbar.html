@@ -155,11 +155,40 @@
       <li><a href="{% url 'jobs:job_list' %}" class="font-medium hover:text-[#42547b]">View Jobs</a></li>
 
     {% elif user.role == 'recruiter' %}
-      <li><a href="{% url 'recruiter_onboarding' %}" class="font-medium hover:text-[#42547b]">Edit Profile</a></li>
-      <li><a href="{% url 'jobs:my_list' %}" class="font-medium hover:text-[#42547b]">My Job Listings</a></li>
-      <li><a href="{% url 'messaging:inbox' %}" class="font-medium hover:text-[#42547b]">Messages</a></li>
+    <li>
+      <a
+        href="{% url 'recruiter_onboarding' %}"
+        class="block font-medium text-[#233250] hover:text-[#42547b] transition-colors"
+      >
+        Edit Profile
+      </a>
+    </li>
+    <li>
+      <a
+        href="{% url 'recruiter_preferences' %}"
+        class="block font-medium text-[#233250] hover:text-[#42547b] transition-colors"
+      >
+        Candidate Preferences
+      </a>
+    </li>
+    <li>
+      <a
+        href="{% url 'jobs:my_list' %}"
+        class="block font-medium text-[#233250] hover:text-[#42547b] transition-colors"
+      >
+        My Job Listings
+      </a>
+    </li>
+    <li>
+      <!-- Messages link -->
+      <a
+        href="{% url 'messaging:inbox' %}"
+        class="block font-medium text-[#233250] hover:text-[#42547b] transition-colors"
+      >
+        Messages
+      </a>
+    </li>
     {% endif %}
-
   </ul>
 
   <hr class="my-3" />

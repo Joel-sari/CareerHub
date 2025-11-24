@@ -157,9 +157,61 @@ class CandidateSavedSearch(models.Model):
 @receiver(post_save, sender=User)
 def create_role_profile(sender, instance, created, **kwargs):
     if not created:
-        return
+        return  # only run the first time a user is created
 
     if instance.role == User.JOB_SEEKER:
         JobSeekerProfile.objects.create(user=instance)
     elif instance.role == User.RECRUITER:
-        RecruiterProfile.objects.create(user=instance)
+        # Create both the RecruiterProfile and RecruiterPreferences
+        recruiter_profile = RecruiterProfile.objects.create(user=instance)
+        RecruiterPreferences.objects.create(recruiter=instance)
+
+class RecruiterPreferences(models.Model):
+    """
+    Stores what kind of candidates a recruiter is looking for.
+
+    NOTE:
+    - All fields are optional so the recruiter can fill this form gradually.
+    - Matching logic will only use the fields that are actually set.
+    """
+    recruiter = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="recruiter_preferences",
+    )
+
+    preferred_degree = models.CharField(max_length=255, blank=True)
+    preferred_major = models.CharField(max_length=255, blank=True)
+
+
+    min_grad_year = models.PositiveIntegerField(null=True, blank=True)  # optional, can ignore in logic
+    min_experience_years = models.DecimalField(
+        max_digits=4, decimal_places=1, null=True, blank=True
+    )
+
+    # NEW: how “finished” the candidate is
+    GRAD_STATUS_CHOICES = [
+        ("any", "Any"),
+        ("student", "Current students"),
+        ("graduate", "Already graduated"),
+    ]
+    graduation_status = models.CharField(
+        max_length=20, choices=GRAD_STATUS_CHOICES, default="any"
+    )
+
+    # NEW: what year in school you want (optional)
+    CLASS_LEVEL_CHOICES = [
+        ("any", "Any class year"),
+        ("freshman", "Freshman"),
+        ("sophomore", "Sophomore"),
+        ("junior", "Junior"),
+        ("senior", "Senior"),
+    ]
+    preferred_class_level = models.CharField(
+        max_length=20, choices=CLASS_LEVEL_CHOICES, default="any"
+    )
+
+    preferred_universities = models.TextField(blank=True)
+
+    def __str__(self):
+        return f"Preferences({self.recruiter.username})"

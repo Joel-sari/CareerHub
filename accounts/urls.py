@@ -89,4 +89,8 @@ urlpatterns = [
     path("candidates/saved-searches/<int:pk>/run/",
          views.run_candidate_saved_search,
          name="candidate_saved_search_run"),
+
+    # Recruiter Preferences
+    path("recruiter/preferences/", views.recruiter_preferences_view,name="recruiter_preferences",
+)
 ]
