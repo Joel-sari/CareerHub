@@ -11,7 +11,7 @@ urlpatterns = [
     path("<int:pk>/", views.thread, name="thread"),
 
     # Start a conversation with another user (by user id)
-    path("start/<int:user_id>/", views.start_conversation, name="start"),
+    path("start/<int:user_id>/", views.start_conversation, name="start_conversation"),
 
     # NEW Message form view
     path("new/", views.new_message, name="new"),

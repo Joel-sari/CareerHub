@@ -15,9 +15,15 @@
 
       <!-- Profile Info -->
       <div class="flex flex-col items-center mt-6">
-        <img src="{% static 'images/icon_profile.png' %}"
-             class="w-[85px] h-[85px] rounded-full border border-gray-300 object-cover shadow-sm mb-3"
-             alt="Profile Picture">
+        {% if user.recruiter.profile_picture %}
+  <img src="{{ user.recruiter.profile_picture.url }}"
+       class="w-[85px] h-[85px] rounded-full border border-gray-300 object-cover shadow-sm mb-3"
+       alt="Profile Picture">
+{% else %}
+  <img src="{% static 'images/icon_profile.png' %}"
+       class="w-[85px] h-[85px] rounded-full border border-gray-300 object-cover shadow-sm mb-3"
+       alt="Default Profile">
+{% endif %}
         <p class="text-lg font-semibold text-[#243251]">{{ user.username|capfirst }}</p>
         <p class="text-sm text-gray-500 mt-1">Recruiter</p>
       </div>
@@ -156,6 +162,56 @@
            class="inline-block bg-[#efce63] text-[#243251] rounded-full px-8 py-3 font-semibold text-lg hover:bg-[#d4b94a] transition">
           Manage Listings
         </a>
+      </div>
+
+      <!-- ================= Recommended Candidates (Right Column) ================= -->
+      <div class="mt-12">
+        <h2 class="text-2xl font-semibold text-[#243251] mb-6">Recommended Candidates</h2>
+
+        <div class="border border-black/30 rounded-[35px] p-6 min-h-[220px] flex flex-col justify-between shadow-sm bg-white">
+          {% if recommended_candidates %}
+          <ul class="space-y-0">
+            {% for candidate in recommended_candidates %}
+              <li class="border-t border-gray-200 pt-4 first:border-t-0 first:pt-0">
+                <a href="{% url 'candidate_profile' candidate.user.id %}"
+                   class="block">
+                  <!-- Top row: name + match percentage -->
+                  <div class="flex items-center justify-between">
+                    <div>
+                      <p class="text-base font-semibold text-[#243251]">
+                        {{ candidate.user.username|capfirst }}
+                      </p>
+                      {% if candidate.user.jobseeker.headline %}
+                        <p class="text-sm text-gray-500">
+                          {{ candidate.user.jobseeker.headline }}
+                        </p>
+                      {% endif %}
+                    </div>
+
+                    {% if candidate.match_percentage %}
+                      <span class="inline-flex items-center justify-center px-3 py-1 rounded-full bg-[#efce63] text-[#243251] text-xs font-semibold">
+                        {{ candidate.match_percentage }}% match
+                      </span>
+                    {% endif %}
+                  </div>
+
+                  <!-- Optional: quick education/degree line if present -->
+                  {% if candidate.education %}
+                    <p class="text-xs text-gray-500 mt-1 truncate">
+                      {{ candidate.education }}
+                    </p>
+                  {% endif %}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+            <p class="text-sm text-gray-500">
+              You don't have any recommended candidates yet. Once you set your preferences and candidates match them,
+              they'll appear here.
+            </p>
+          {% endif %}
+        </div>
       </div>
     </div>
 
