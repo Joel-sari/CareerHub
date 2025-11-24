@@ -7,6 +7,7 @@
   <div class="grid grid-cols-3 gap-20 gap-x-30 w-[95%] mx-auto items-start">
 
     <!-- ================= LEFT: Profile ================= -->
+    <div class="flex flex-col items-center">
       <!-- Greeting -->
       <h1 class="text-3xl font-semibold text-[#243251] self-start mb-10">
         Welcome back, {{ user.username|capfirst }}
@@ -29,6 +30,7 @@
     </div>
 
     <!-- ================= MIDDLE COLUMN ================= -->
+    <div class="flex flex-col gap-12">
 
       <!-- === CARD 1: View Applicants === -->
       <div>
@@ -154,7 +156,7 @@
           </div>
         {% empty %}
           <p class="text-gray-400 text-center">No job listings yet.</p>
-        {% endfor %}ss
+        {% endfor %}
       </div>
 
       <!-- Manage Listings -->
@@ -175,7 +177,7 @@
           <div class="max-h-56 overflow-y-auto pr-1">
             <ul class="space-y-0">
               {% for candidate in recommended_candidates %}
-                <li class="border-t border-gray-400 pt-4 first:border-t-0 first:pt-0">
+                <li class="border-t border-gray-200 pt-4 first:border-t-0 first:pt-0">
                   <a href="{% url 'candidate_profile' candidate.user.id %}"
                      class="block">
                     <!-- Top row: name + match percentage -->
