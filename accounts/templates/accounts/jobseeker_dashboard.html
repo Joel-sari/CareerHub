@@ -13,7 +13,8 @@
       <!-- ========== LEFT COLUMN: Profile (centered) ========== -->
       <div class="flex flex-col items-center">
         <h1 class="text-3xl font-semibold text-[#243251] self-start mb-10">
-          Welcome back, {{ user.username|capfirst }}
+          Welcome back, {{ user.jobseeker.full_name|default:user.username }}
+
         </h1>
 
         <div class="flex flex-col items-center mt-6">
@@ -26,10 +27,15 @@
                  class="w-[90px] h-[90px] rounded-full border border-gray-300 object-cover shadow-sm mb-3">
           {% endif %}
 
-          <p class="text-lg font-semibold text-[#243251]">
-            {{ user.username|capfirst }}
-          </p>
-          <p class="text-sm text-gray-500 mt-1">Job Seeker</p>
+          <!-- Full Name -->
+<p class="text-lg font-semibold text-[#243251]">
+  {{ user.jobseeker.full_name|default:user.username }}
+</p>
+
+<!-- Username (always shows) -->
+<p class="text-sm text-gray-500 -mt-1">
+  @{{ user.username }}
+</p>
 
           <a href="{% url 'jobseeker_edit_profile' %}"
              class="mt-4 text-sm text-[#42547c] underline hover:text-[#2b3853]">
