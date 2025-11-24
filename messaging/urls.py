@@ -16,5 +16,9 @@ urlpatterns = [
     # NEW Message form view
     path("new/", views.new_message, name="new"),
 
+    # Mark all messages in a conversation as read
+    path("notifications/mark-all-read/", views.notifications_mark_all_read, name="notifications_mark_all_read"),
+
+
 
 ]

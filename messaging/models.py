@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from django.utils import timezone
+from jobs.models import Job
 
 # ---------------------------------------------------------
 # Conversation model
@@ -94,3 +95,32 @@ class Message(models.Model):
         if not self.is_read:
             self.is_read = True
             self.save(update_fields=["is_read"])
+
+# ---------------------------------------------------------
+# Job Notification model
+# ---------------------------------------------------------
+# handles "new job near you" notifications for job seekers
+# ---------------------------------------------------------
+class JobNotification(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        related_name="job_notifications",
+        on_delete=models.CASCADE,
+    )
+    job = models.ForeignKey(
+        Job,
+        related_name="notifications",
+        on_delete=models.CASCADE,
+    )
+    # Text shown in the notifications panel
+    text = models.CharField(max_length=255)
+
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        unique_together = ("user", "job")  # prevent duplicate "same job" notifications
+
+    def __str__(self):
+        return f"JobNotification({self.user.username} -> {self.job.title})"

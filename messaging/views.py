@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.http import Http404
+from django.http import Http404, HttpResponseNotAllowed, JsonResponse
 from django.db.models import Max, Q, F
 # Create your views here.
 from django.contrib import messages as django_messages
@@ -10,7 +10,7 @@ from django.db.models.functions import Coalesce
 
 from django.contrib.auth import get_user_model
 
-from .models import Conversation, Message
+from .models import Conversation, Message, JobNotification
 
 User = get_user_model()
 
@@ -188,3 +188,27 @@ def new_message(request):
         form = NewConversationForm()
 
     return render(request, "messaging/new.html", {"form": form})
+
+
+@login_required
+def notifications_mark_all_read(request):
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    # Mark all unread messages as read (for this user)
+    Message.objects.filter(
+        conversation__participants=request.user,
+        is_read=False
+    ).exclude(sender=request.user).update(is_read=True)
+
+    # Mark all job notifications as read
+    JobNotification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).update(is_read=True)
+
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        return JsonResponse({"ok": True})
+
+    # Fall back: redirect back to whatever page we came from
+    return redirect(request.META.get("HTTP_REFERER", "/"))
