@@ -11,6 +11,9 @@ from .models import Job, Application
 from accounts.models import User
 from .forms import JobForm
 from .decorators import recruiter_required
+from accounts.models import JobSeekerProfile
+from messaging.models import JobNotification
+
 
 from django.http import JsonResponse, HttpResponseForbidden
 
@@ -43,7 +46,43 @@ def jobs_create(request):
         job = form.save(commit=False)
         job.recruiter = request.user
         job.save()
+
+        # ---------------------------------------------
+        # NEW: Notify nearby job seekers about this job
+        # ---------------------------------------------
+        # Define "near" as same city + state + country
+        if job.city and job.state and job.country:
+            nearby_seekers = JobSeekerProfile.objects.filter(
+                is_public=True,
+                city__iexact=job.city,
+                state__iexact=job.state,
+                country__iexact=job.country,
+            ).select_related("user")
+
+            notifications = []
+            for profile in nearby_seekers:
+                if profile.user == request.user:
+                    continue  # don't notify the posting recruiter
+                text = f"New job near you: {job.title}"
+                if job.company:
+                    text += f" at {job.company}"
+                if job.city:
+                    text += f" in {job.city}"
+
+                notifications.append(
+                    JobNotification(
+                        user=profile.user,
+                        job=job,
+                        text=text,
+                    )
+                )
+
+            if notifications:
+                # unique_together(user, job) will prevent duplicates over time
+                JobNotification.objects.bulk_create(notifications, ignore_conflicts=True)
+
         return redirect(job.get_absolute_url())
+    
     return render(request, "jobs/job_form.html", {"form": form, "title": "Post a Job"})
 
 
@@ -179,11 +218,23 @@ def job_detail(request, pk):
     applied = False
     if request.user.is_authenticated and getattr(request.user, "role", None) == User.JOB_SEEKER:
         applied = Application.objects.filter(job=job, applicant=request.user).exists()
+
+        # If this job was opened via a notification, mark that notification read
+        notif_id = request.GET.get("notif_id")
+        if notif_id:
+            from messaging.models import JobNotification
+            JobNotification.objects.filter(
+                id=notif_id,
+                user=request.user,
+                job=job,
+            ).update(is_read=True)
+
     return render(request, "jobs/job_detail.html", {
         "job": job,
         "applied": applied,
         "GOOGLE_MAPS_API_KEY": settings.GOOGLE_MAPS_API_KEY,
     })
+
 
 
 @login_required
